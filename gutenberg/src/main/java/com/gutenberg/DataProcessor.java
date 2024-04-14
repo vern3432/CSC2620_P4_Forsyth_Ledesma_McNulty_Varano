@@ -50,19 +50,21 @@ public class DataProcessor {
             // Read each file name from the folder stream
             BufferedReader folderReader = new BufferedReader(new InputStreamReader(folderStream, StandardCharsets.UTF_8));
             String fileName;
-
+            // System.out.println(folderReader.toString());
             // Loop through each file name in the folder
             while ((fileName = folderReader.readLine()) != null) {
                 // Get the input stream for the current file
-                InputStream fileStream = classLoader.getResourceAsStream(folderPath + fileName.trim());
+                InputStream fileStream = classLoader.getResourceAsStream(folderPath + fileName.trim()+"/pg"+fileName.trim()+".txt");
+                System.out.println("File:"+folderPath + fileName.trim()+"/pg"+fileName.trim()+".txt");
+
                 if (fileStream != null) {
                     // Read file content using BufferedReader
                     BufferedReader fileReader = new BufferedReader(new InputStreamReader(fileStream, StandardCharsets.UTF_8));
                     StringBuilder fileContent = new StringBuilder();
                     String line;
-
                     // Read file line by line
                     while ((line = fileReader.readLine()) != null) {
+                        // System.out.println("Line:"+line.toString());
                         fileContent.append(line).append("\n");
                     }
 
@@ -71,7 +73,7 @@ public class DataProcessor {
 
                     // Close the file reader
                     fileReader.close();
-                }
+                } else{System.out.println("NUll");}
             }
 
             // Close the folder reader
@@ -154,11 +156,11 @@ public class DataProcessor {
             String fileName = entry.getKey();
             String fileContent = entry.getValue();
 
-            System.out.println("File Name: " + fileName);
+            System.out.println("File Name: " + fileName+"Length:"+fileContent.length());
 
             // Apply filters to the content
             Map<String, Integer> filteredWords = applyFilters(fileContent);
-            System.out.println("Filtered Words and Frequencies: " + filteredWords);
+             System.out.println("Filtered Words and Frequencies: " + filteredWords);
 
             // Extract authors' names from the content
             ArrayList<String> authors = extractAuthors(fileContent);
