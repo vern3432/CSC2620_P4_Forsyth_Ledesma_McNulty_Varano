@@ -34,9 +34,12 @@ public class WordCloudGui {
 
         // Create a "File" menu
         JMenu fileMenu = new JMenu("File");
+        JMenu optionsMenu = new JMenu("Options");
 
         // Create a "New" menu item under "File"
         JMenuItem newMenuItem = new JMenuItem("New");
+        JMenuItem testOption = new JMenuItem("Test Option");
+
         newMenuItem.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
@@ -46,12 +49,15 @@ public class WordCloudGui {
             }
         });
         fileMenu.add(newMenuItem);
+        optionsMenu.add(testOption);
 
         // Create other menu items as needed under "File"
         // For example: Open, Save, Exit, etc.
         
         // Add the "File" menu to the menu bar
         menuBar.add(fileMenu);
+        menuBar.add(optionsMenu);
+
 
         // Add the menu bar to the frame
         frame.setJMenuBar(menuBar);
