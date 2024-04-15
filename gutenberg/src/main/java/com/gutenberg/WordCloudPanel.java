@@ -7,7 +7,9 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Pattern;
 
 import javax.swing.*;
@@ -45,6 +47,9 @@ public class WordCloudPanel extends JPanel {
     private boolean useAughFilter = false;
     private boolean useAuthorFilter = false;
 
+    // Cache to store filtered and rendered word cloud images
+    private Map<String, BufferedImage> wordCloudCache = new HashMap<>();
+
     public WordCloudPanel(List<WordFrequency> wordFrequencies) {
         this.wordFrequencies = wordFrequencies;
         this.filteredWordFrequencies = new ArrayList<>(wordFrequencies);
@@ -55,7 +60,10 @@ public class WordCloudPanel extends JPanel {
         JPanel sidePanel = createSidePanel();
         add(sidePanel, BorderLayout.WEST);
 
-        // Set up the word cloud panel and generate the word cloud
+        // Setup the initial word cloud
+        cacheDefaultWordCloud();
+        // Setup the initial word cloud using the cached default image
+        setupInitialWordCloud();
         setupWordCloud();
         // add(new JLabel(new ImageIcon(wordCloudImage)), BorderLayout.CENTER);
     }
@@ -74,35 +82,12 @@ public class WordCloudPanel extends JPanel {
         cbAuthorFilter = new JCheckBox("Author's names");
 
         // Add action listeners to the checkboxes
-        cbIngFilter.addActionListener(e -> {
-            useIngFilter = cbIngFilter.isSelected();
-            updateFiltersAndWordCloud();
-        });
-
-        cbOughFilter.addActionListener(e -> {
-            useOughFilter = cbOughFilter.isSelected();
-            updateFiltersAndWordCloud();
-        });
-
-        cbIsmFilter.addActionListener(e -> {
-            useIsmFilter = cbIsmFilter.isSelected();
-            updateFiltersAndWordCloud();
-        });
-
-        cbKnFilter.addActionListener(e -> {
-            useKnFilter = cbKnFilter.isSelected();
-            updateFiltersAndWordCloud();
-        });
-
-        cbAughFilter.addActionListener(e -> {
-            useAughFilter = cbAughFilter.isSelected();
-            updateFiltersAndWordCloud();
-        });
-
-        cbAuthorFilter.addActionListener(e -> {
-            useAuthorFilter = cbAuthorFilter.isSelected();
-            updateFiltersAndWordCloud();
-        });
+        addFilterActionListener(cbIngFilter, () -> useIngFilter = cbIngFilter.isSelected());
+        addFilterActionListener(cbOughFilter, () -> useOughFilter = cbOughFilter.isSelected());
+        addFilterActionListener(cbIsmFilter, () -> useIsmFilter = cbIsmFilter.isSelected());
+        addFilterActionListener(cbKnFilter, () -> useKnFilter = cbKnFilter.isSelected());
+        addFilterActionListener(cbAughFilter, () -> useAughFilter = cbAughFilter.isSelected());
+        addFilterActionListener(cbAuthorFilter, () -> useAuthorFilter = cbAuthorFilter.isSelected());
 
         // Add checkboxes to the side panel
         sidePanel.add(cbIngFilter);
@@ -115,33 +100,72 @@ public class WordCloudPanel extends JPanel {
         return sidePanel;
     }
 
+    private void addFilterActionListener(JCheckBox checkBox, Runnable action) {
+        checkBox.addActionListener(e -> {
+            action.run();
+            updateFiltersAndWordCloud();
+        });
+    }
+
     private void updateFiltersAndWordCloud() {
-        // Apply filters based on the selected checkboxes
         applyFilters();
 
-        // Rebuild the word cloud with filtered word frequencies
-        setupWordCloud();
+        // Generate a unique key for the current filter state
+        String filterKey = generateFilterKey();
+
+        // Check if the filtered and rendered word cloud image is in the cache
+        if (wordCloudCache.containsKey(filterKey)) {
+            // Use the cached word cloud image
+            wordCloudImage = wordCloudCache.get(filterKey);
+        } else {
+            // Build and cache a new word cloud image for the current filter state
+            setupWordCloud();
+            wordCloudCache.put(filterKey, wordCloudImage);
+        }
 
         // Repaint the panel to reflect the updated word cloud
         repaint();
     }
 
+    private void setupInitialWordCloud() {
+        // Use the cached default word cloud image
+        String filterKey = generateFilterKey();
+        wordCloudImage = wordCloudCache.get(filterKey);
+    }
+    private void cacheDefaultWordCloud() {
+        // Generate the default filter key
+        String filterKey = generateFilterKey();
+
+        // Check if the default word cloud image is not already cached
+        if (!wordCloudCache.containsKey(filterKey)) {
+            // Build and cache the default word cloud image
+            setupWordCloud();
+            wordCloudCache.put(filterKey, wordCloudImage);
+        }
+    }
+
+    private String generateFilterKey() {
+        return useIngFilter + "-" + useOughFilter + "-" + useIsmFilter + "-" +
+               useKnFilter + "-" + useAughFilter + "-" + useAuthorFilter;
+    }
+
     private void applyFilters() {
-        // Regular expression patterns
+        // Regular expression patterns for each filter
         Pattern ingPattern = Pattern.compile(".*ing$");
         Pattern oughPattern = Pattern.compile(".*ough.*");
         Pattern ismPattern = Pattern.compile(".*ism$");
         Pattern knPattern = Pattern.compile("^kn.*");
         Pattern aughPattern = Pattern.compile(".*augh.*");
 
-        // Apply filtering logic based on selected filters
+        // Clear the filtered word frequencies list
         filteredWordFrequencies.clear();
 
+        // Apply the selected filters to the word frequencies list
         for (WordFrequency wordFrequency : wordFrequencies) {
             String word = wordFrequency.getWord();
             boolean includeWord = true;
 
-            // Apply regular expression filters
+            // Apply the filters
             if (useIngFilter && !ingPattern.matcher(word).matches()) {
                 includeWord = false;
             }
@@ -166,13 +190,15 @@ public class WordCloudPanel extends JPanel {
                 includeWord = false;
             }
 
+            // Add the word frequency to the filtered list if it meets the filter criteria
             if (includeWord) {
                 filteredWordFrequencies.add(wordFrequency);
             }
         }
     }
+
     private boolean isAuthorName(String word) {
-        // This method should implement logic to determine if a word is an author's name
+        // Determine if a word is an author's name based on whether the first letter is uppercase
         return Character.isUpperCase(word.charAt(0));
     }
 
@@ -180,18 +206,16 @@ public class WordCloudPanel extends JPanel {
         // Define the size of the word cloud
         Dimension dimension = new Dimension(DEFAULT_WIDTH - SIDEBAR_WIDTH, DEFAULT_HEIGHT);
 
-        // Create a new word cloud object with the updated dimension and collision mode
+        // Create a new word cloud object with the specified dimension and collision mode
         wordCloud = new WordCloud(dimension, CollisionMode.PIXEL_PERFECT);
 
-        // Set the background, font scalar, and color palette as before
+        // Set background, font scalar, and color palette
         wordCloud.setBackground(new CircleBackground(100));
         wordCloud.setFontScalar(new LinearFontScalar(10, 40));
         wordCloud.setColorPalette(new ColorPalette(Color.RED, Color.BLUE, Color.GREEN));
 
-        // Build the word cloud using the filtered list of word frequencies
-        System.out.println("Building");
+        // Build the word cloud using the filtered word frequencies
         wordCloud.build(filteredWordFrequencies);
-        System.out.println("Built");
 
         // Store the generated word cloud image
         wordCloudImage = wordCloud.getBufferedImage();
@@ -219,8 +243,6 @@ public class WordCloudPanel extends JPanel {
         // Customize the sidebar as needed (labels, additional components, etc.)
         g2d.setColor(Color.BLACK);
         g2d.drawString("Filter Options:", 10, 20);
-
-        // Add any additional customization here
     }
 
     @Override
