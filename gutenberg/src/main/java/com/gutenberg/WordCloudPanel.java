@@ -34,6 +34,8 @@ public class WordCloudPanel extends JPanel {
     private JCheckBox cbKnFilter;
     private JCheckBox cbAughFilter;
     private JCheckBox cbAuthorFilter;
+    private JProgressBar progressBar;
+
 
     // Boolean options for filters
     private boolean useIngFilter = false;
@@ -167,24 +169,56 @@ public class WordCloudPanel extends JPanel {
         // You can customize this logic as needed, using regex or other approaches
         return Character.isUpperCase(word.charAt(0));
     }
+    public void WordCloudProgressBar() {
+        // Initialize the progress bar
+        progressBar = new JProgressBar(0, 100);
+        progressBar.setStringPainted(true);
+    }
 
-    private void setupWordCloud() {
+    public void setupWordCloud() {
         // Define the size of the word cloud
         Dimension dimension = new Dimension(DEFAULT_WIDTH - SIDEBAR_WIDTH, DEFAULT_HEIGHT);
 
         // Create a new word cloud object with the updated dimension and collision mode
         wordCloud = new WordCloud(dimension, CollisionMode.PIXEL_PERFECT);
-
-        // Set the background, font scalar, and color palette as before
+        
+        // Set background, font scalar, and color palette as before
         wordCloud.setBackground(new CircleBackground(100));
         wordCloud.setFontScalar(new LinearFontScalar(10, 40));
         wordCloud.setColorPalette(new ColorPalette(Color.RED, Color.BLUE, Color.GREEN));
 
-        // Build the word cloud using the filtered list of word frequencies
-        wordCloud.build(filteredWordFrequencies);
+        // Run the long-running build task in a separate thread
+        SwingWorker<Void, Integer> worker = new SwingWorker<Void, Integer>() {
+            @Override
+            protected Void doInBackground() {
+                // Build the word cloud using the filtered list of word frequencies
+                for (int i = 0; i < filteredWordFrequencies.size(); i++) {
+                    // Build a part of the word cloud here
+                    // Use the loop index to simulate progress
+                    int progress = (int) (((double) i / filteredWordFrequencies.size()) * 100);
+                    publish(progress);
+                }
+                wordCloud.build(filteredWordFrequencies);
+                return null;
+            }
 
-        // Store the generated word cloud image
-        wordCloudImage = wordCloud.getBufferedImage();
+            @Override
+            protected void process(List<Integer> chunks) {
+                // Update the progress bar with the latest progress
+                progressBar.setValue(chunks.get(chunks.size() - 1));
+            }
+
+            @Override
+            protected void done() {
+                // Once the task is done, retrieve the generated word cloud image
+                wordCloudImage = wordCloud.getBufferedImage();
+                progressBar.setValue(100);
+                progressBar.setString("Complete");
+            }
+        };
+
+        // Execute the worker
+        worker.execute();
     }
 
     @Override

@@ -9,7 +9,7 @@ import java.util.stream.Collectors;
 
 import com.kennycason.kumo.WordFrequency;
 
-public class WordCloudPanelDemo {
+public class WordCloudPanelDemo1 {
 
     public static void main(String[] args) {
         // Read data from gutenberg-data folder using DataProcessor
