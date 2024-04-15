@@ -1,5 +1,6 @@
 package com.gutenberg;
 
+import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Graphics;
@@ -7,12 +8,11 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
-import javax.swing.JPanel;
+import javax.swing.*;
 
 import com.kennycason.kumo.WordCloud;
 import com.kennycason.kumo.WordFrequency;
 import com.kennycason.kumo.bg.CircleBackground;
-import com.kennycason.kumo.bg.RectangleBackground;
 import com.kennycason.kumo.CollisionMode;
 import com.kennycason.kumo.font.scale.LinearFontScalar;
 import com.kennycason.kumo.palette.ColorPalette;
@@ -20,76 +20,173 @@ import com.kennycason.kumo.palette.ColorPalette;
 public class WordCloudPanel extends JPanel {
     private WordCloud wordCloud;
     private BufferedImage wordCloudImage;
-    private static final int DEFAULT_WIDTH = 400;
-    private static final int DEFAULT_HEIGHT = 300;
+    private List<WordFrequency> wordFrequencies;
+    private List<WordFrequency> filteredWordFrequencies;
+
+    private static final int DEFAULT_WIDTH = 600;
+    private static final int DEFAULT_HEIGHT = 400;
     private static final int SIDEBAR_WIDTH = 200;
-    
+
+    // Checkboxes for filtering options
+    private JCheckBox cbIngFilter;
+    private JCheckBox cbOughFilter;
+    private JCheckBox cbIsmFilter;
+    private JCheckBox cbKnFilter;
+    private JCheckBox cbAughFilter;
+    private JCheckBox cbAuthorFilter;
+
+    // Boolean options for filters
+    private boolean useIngFilter = false;
+    private boolean useOughFilter = false;
+    private boolean useIsmFilter = false;
+    private boolean useKnFilter = false;
+    private boolean useAughFilter = false;
+    private boolean useAuthorFilter = false;
+
     public WordCloudPanel(List<WordFrequency> wordFrequencies) {
-        // Define the size of the word cloud
-        Dimension dimension = new Dimension(400, 300);
+        this.wordFrequencies = wordFrequencies;
+        this.filteredWordFrequencies = new ArrayList<>(wordFrequencies);
 
-        // Create a word cloud object with specified dimension and collision mode
+        setLayout(new BorderLayout());
+
+        // Create the side panel with filter options
+        JPanel sidePanel = createSidePanel();
+        add(sidePanel, BorderLayout.WEST);
+
+        // Set up the word cloud panel and generate the word cloud
+        setupWordCloud();
+        // add(new JLabel(new ImageIcon(wordCloudImage)), BorderLayout.CENTER);
+    }
+
+    private JPanel createSidePanel() {
+        JPanel sidePanel = new JPanel();
+        sidePanel.setPreferredSize(new Dimension(SIDEBAR_WIDTH, DEFAULT_HEIGHT));
+        sidePanel.setLayout(new BoxLayout(sidePanel, BoxLayout.Y_AXIS));
+
+        // Initialize checkboxes for filtering options
+        cbIngFilter = new JCheckBox("Words ending in 'ing'");
+        cbOughFilter = new JCheckBox("Words containing 'ough'");
+        cbIsmFilter = new JCheckBox("Words ending in 'ism'");
+        cbKnFilter = new JCheckBox("Words starting with 'kn'");
+        cbAughFilter = new JCheckBox("Words containing 'augh'");
+        cbAuthorFilter = new JCheckBox("Author's names");
+
+        // Add action listeners to the checkboxes
+        cbIngFilter.addActionListener(e -> {
+            useIngFilter = cbIngFilter.isSelected();
+            updateFiltersAndWordCloud();
+        });
+
+        cbOughFilter.addActionListener(e -> {
+            useOughFilter = cbOughFilter.isSelected();
+            updateFiltersAndWordCloud();
+        });
+
+        cbIsmFilter.addActionListener(e -> {
+            useIsmFilter = cbIsmFilter.isSelected();
+            updateFiltersAndWordCloud();
+        });
+
+        cbKnFilter.addActionListener(e -> {
+            useKnFilter = cbKnFilter.isSelected();
+            updateFiltersAndWordCloud();
+        });
+
+        cbAughFilter.addActionListener(e -> {
+            useAughFilter = cbAughFilter.isSelected();
+            updateFiltersAndWordCloud();
+        });
+
+        cbAuthorFilter.addActionListener(e -> {
+            useAuthorFilter = cbAuthorFilter.isSelected();
+            updateFiltersAndWordCloud();
+        });
+
+        // Add checkboxes to the side panel
+        sidePanel.add(cbIngFilter);
+        sidePanel.add(cbOughFilter);
+        sidePanel.add(cbIsmFilter);
+        sidePanel.add(cbKnFilter);
+        sidePanel.add(cbAughFilter);
+        sidePanel.add(cbAuthorFilter);
+
+        return sidePanel;
+    }
+
+    private void updateFiltersAndWordCloud() {
+        // Apply filters based on the selected checkboxes
+        applyFilters();
+
+        // Rebuild the word cloud with filtered word frequencies
+        setupWordCloud();
+
+        // Repaint the panel to reflect the updated word cloud
+        repaint();
+    }
+
+    private void applyFilters() {
+        // Apply filtering logic based on selected checkboxes
+        filteredWordFrequencies.clear();
+
+        for (WordFrequency wordFrequency : wordFrequencies) {
+            String word = wordFrequency.getWord();
+            boolean includeWord = true;
+
+            if (useIngFilter && !word.endsWith("ing")) {
+                includeWord = false;
+            }
+
+            if (useOughFilter && !word.contains("ough")) {
+                includeWord = false;
+            }
+
+            if (useIsmFilter && !word.endsWith("ism")) {
+                includeWord = false;
+            }
+
+            if (useKnFilter && !word.startsWith("kn")) {
+                includeWord = false;
+            }
+
+            if (useAughFilter && !word.contains("augh")) {
+                includeWord = false;
+            }
+
+            if (useAuthorFilter && !isAuthorName(word)) {
+                includeWord = false;
+            }
+
+            if (includeWord) {
+                filteredWordFrequencies.add(wordFrequency);
+            }
+        }
+    }
+
+    private boolean isAuthorName(String word) {
+        // This method should implement logic to determine if a word is an author's name
+        // You can customize this logic as needed, using regex or other approaches
+        return Character.isUpperCase(word.charAt(0));
+    }
+
+    private void setupWordCloud() {
+        // Define the size of the word cloud
+        Dimension dimension = new Dimension(DEFAULT_WIDTH - SIDEBAR_WIDTH, DEFAULT_HEIGHT);
+
+        // Create a new word cloud object with the updated dimension and collision mode
         wordCloud = new WordCloud(dimension, CollisionMode.PIXEL_PERFECT);
 
-        // Set the background to a circle with radius of 100
+        // Set the background, font scalar, and color palette as before
         wordCloud.setBackground(new CircleBackground(100));
-
-        // Set the font scalar for font size scaling
         wordCloud.setFontScalar(new LinearFontScalar(10, 40));
-
-        // Set the color palette for word colors
         wordCloud.setColorPalette(new ColorPalette(Color.RED, Color.BLUE, Color.GREEN));
 
-        // Build the word cloud using the list of word frequencies
-        wordCloud.build(wordFrequencies);
+        // Build the word cloud using the filtered list of word frequencies
+        wordCloud.build(filteredWordFrequencies);
 
         // Store the generated word cloud image
         wordCloudImage = wordCloud.getBufferedImage();
     }
-    public WordCloudPanel() {
-        // Define the size of the word cloud
-        Dimension dimension = new Dimension(400, 300);
 
-        // Create a word cloud object with specified dimension and collision mode
-        wordCloud = new WordCloud(dimension, CollisionMode.PIXEL_PERFECT);
-
-        // Set the background to a circle with radius of 100
-        wordCloud.setBackground(new CircleBackground(100));
-
-        // Set the font scalar for font size scaling
-        wordCloud.setFontScalar(new LinearFontScalar(10, 40));
-
-        // Set the color palette for word colors
-        wordCloud.setColorPalette(new ColorPalette(Color.RED, Color.BLUE, Color.GREEN));
-
-        // Define a list of word frequencies (example words with frequencies)
-        List<WordFrequency> wordFrequencies = new ArrayList<>();
-        wordFrequencies.add(new WordFrequency("Java", 50));
-        wordFrequencies.add(new WordFrequency("Programming", 40));
-        wordFrequencies.add(new WordFrequency("Threading", 30));
-        wordFrequencies.add(new WordFrequency("Cloud", 20));
-        wordFrequencies.add(new WordFrequency("Regular", 15));
-        wordFrequencies.add(new WordFrequency("Expression", 10));
-
-        // Build the word cloud using the list of word frequencies
-        wordCloud.build(wordFrequencies);
-
-        // Store the generated word cloud image
-        wordCloudImage = wordCloud.getBufferedImage();
-    }
-    
-    private void drawSidebar(Graphics2D g2d) {
-        g2d.setColor(Color.LIGHT_GRAY);
-        g2d.fillRect(0, 0, SIDEBAR_WIDTH, getHeight());
-
-        g2d.setColor(Color.BLACK);
-        g2d.drawString("Sidebar", 10, 20);
-    }
-
-    @Override
-    public Dimension getPreferredSize() {
-        return new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT);
-    }
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -104,6 +201,20 @@ public class WordCloudPanel extends JPanel {
         drawSidebar(g2d);
     }
 
+    private void drawSidebar(Graphics2D g2d) {
+        // Draw the sidebar background
+        g2d.setColor(Color.LIGHT_GRAY);
+        g2d.fillRect(0, 0, SIDEBAR_WIDTH, getHeight());
 
-    
+        // Customize the sidebar as needed (labels, additional components, etc.)
+        g2d.setColor(Color.BLACK);
+        g2d.drawString("Filter Options:", 10, 20);
+
+        // Add any additional customization here
+    }
+
+    @Override
+    public Dimension getPreferredSize() {
+        return new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+    }
 }
