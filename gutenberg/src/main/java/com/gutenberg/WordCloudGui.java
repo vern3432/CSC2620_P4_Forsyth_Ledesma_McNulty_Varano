@@ -1,71 +1,105 @@
 package com.gutenberg;
+
 import javax.swing.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
+import java.awt.*;
+import java.util.List;
+import java.util.Map;
+import java.util.concurrent.*;
+import java.util.stream.Collectors;
+
+import com.kennycason.kumo.WordFrequency;
 
 public class WordCloudGui {
 
-    // Main method to run the application
     public static void main(String[] args) {
-        // Create an instance of the WordCloudGui
-        WordCloudGui app = new WordCloudGui();
-        app.createAndShowGUI();
+        // Create an instance of WordCloudGui and display the GUI
+        SwingUtilities.invokeLater(() -> {
+            new WordCloudGui().createAndShowGUI();
+        });
     }
 
-    // Create and show the GUI
-    public void createAndShowGUI() {
+    // Method to create and show the GUI
+    private void createAndShowGUI() {
         // Create a JFrame
         JFrame frame = new JFrame("Word Cloud Application");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setSize(600, 400);
+        frame.setSize(800, 600);
 
-        // Create a JTabbedPane
+        // Create a JTabbedPane for multiple word cloud tabs
         JTabbedPane tabbedPane = new JTabbedPane();
 
-        // Add a tab with the WordCloudPanel
-        WordCloudPanel wordCloudPanel = new WordCloudPanel();
+        // Initialize an executor service with a fixed thread pool size
+        ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+        // Read data from gutenberg-data folder using DataProcessor
+        Map<String, String> dataMap = DataProcessor.readFromGutenbergData();
+
+        // Create a concurrent map to hold the word frequencies without duplicates
+        ConcurrentMap<String, Integer> wordFrequenciesMap = new ConcurrentHashMap<>();
+
+        // Submit tasks to process data and calculate word frequencies concurrently
+        List<Callable<Void>> tasks = dataMap.entrySet().stream()
+            .map(entry -> (Callable<Void>) () -> {
+                String fileContent = entry.getValue();
+                Map<String, Integer> frequencies = DataProcessor.applyFilters(fileContent);
+                
+                // Merge the frequencies into the concurrent map
+                frequencies.forEach((word, frequency) -> 
+                    wordFrequenciesMap.merge(word, frequency, Integer::sum)
+                );
+                
+                return null;
+            }).collect(Collectors.toList());
+
+        // Submit all tasks to the executor service and wait for completion
+        try {
+            executorService.invokeAll(tasks);
+            executorService.shutdown();
+            executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // Convert the map to a list of WordFrequency objects
+        List<WordFrequency> wordFrequenciesList = wordFrequenciesMap.entrySet().stream()
+            .map(entry -> new WordFrequency(entry.getKey(), entry.getValue()))
+            .collect(Collectors.toList());
+
+        // Create a WordCloudPanel with the word frequencies list
+        WordCloudPanel wordCloudPanel = new WordCloudPanel(wordFrequenciesList);
+
+        // Add the WordCloudPanel as a tab in the tabbedPane
         tabbedPane.addTab("Word Cloud", wordCloudPanel);
 
-        // Add other tabs as needed
-        // You can add more tabs for other functionalities of your program
+        // Add the tabbedPane to the frame
+        frame.add(tabbedPane, BorderLayout.CENTER);
 
-        // Create a JMenuBar for the top options menu
-        JMenuBar menuBar = new JMenuBar();
-
-        // Create a "File" menu
-        JMenu fileMenu = new JMenu("File");
-        JMenu optionsMenu = new JMenu("Options");
-
-        // Create a "New" menu item under "File"
-        JMenuItem newMenuItem = new JMenuItem("New");
-        JMenuItem testOption = new JMenuItem("Test Option");
-
-        newMenuItem.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                // Handle "New" menu item click
-                // You can add functionality for creating a new word cloud, loading new data, etc.
-                System.out.println("New menu item clicked");
-            }
-        });
-        fileMenu.add(newMenuItem);
-        optionsMenu.add(testOption);
-
-        // Create other menu items as needed under "File"
-        // For example: Open, Save, Exit, etc.
-        
-        // Add the "File" menu to the menu bar
-        menuBar.add(fileMenu);
-        menuBar.add(optionsMenu);
-
-
-        // Add the menu bar to the frame
+        // Create a JMenuBar and menus for the frame
+        JMenuBar menuBar = createMenuBar();
         frame.setJMenuBar(menuBar);
 
-        // Add the tabbed pane to the frame
-        frame.add(tabbedPane);
-
-        // Set the frame to be visible
+        // Make the frame visible
         frame.setVisible(true);
+    }
+
+    // Method to create a JMenuBar with menus and menu items
+    private JMenuBar createMenuBar() {
+        JMenuBar menuBar = new JMenuBar();
+
+        // Create a "File" menu with a "New" menu item
+        JMenu fileMenu = new JMenu("File");
+        JMenuItem newMenuItem = new JMenuItem("New");
+        newMenuItem.addActionListener(e -> {
+            // Handle "New" menu item click
+            // Add functionality for creating a new word cloud, loading new data, etc.
+            System.out.println("New menu item clicked");
+        });
+        fileMenu.add(newMenuItem);
+        menuBar.add(fileMenu);
+
+        // Add more menus as needed, such as Options, Help, etc.
+        // You can add additional functionality in these menus
+
+        return menuBar;
     }
 }
