@@ -64,7 +64,6 @@ public class WordCloudPanel extends JPanel {
         cacheDefaultWordCloud();
         // Setup the initial word cloud using the cached default image
         setupInitialWordCloud();
-        setupWordCloud();
         // add(new JLabel(new ImageIcon(wordCloudImage)), BorderLayout.CENTER);
     }
 
@@ -216,8 +215,11 @@ public class WordCloudPanel extends JPanel {
 
         // Build the word cloud using the filtered word frequencies
         System.out.println("Rendering new Cloud, Please Wait");
+        long startTime = System.currentTimeMillis();
         wordCloud.build(filteredWordFrequencies);
-        System.out.println("Cloud Built");
+        long endTime = System.currentTimeMillis();
+
+        System.out.println("Cloud Built"+":"+"Took:"+(endTime - startTime));
 
         // Store the generated word cloud image
         wordCloudImage = wordCloud.getBufferedImage();
