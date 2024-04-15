@@ -20,7 +20,10 @@ import com.kennycason.kumo.palette.ColorPalette;
 public class WordCloudPanel extends JPanel {
     private WordCloud wordCloud;
     private BufferedImage wordCloudImage;
-
+    private static final int DEFAULT_WIDTH = 400;
+    private static final int DEFAULT_HEIGHT = 300;
+    private static final int SIDEBAR_WIDTH = 200;
+    
     public WordCloudPanel(List<WordFrequency> wordFrequencies) {
         // Define the size of the word cloud
         Dimension dimension = new Dimension(400, 300);
@@ -74,7 +77,19 @@ public class WordCloudPanel extends JPanel {
         // Store the generated word cloud image
         wordCloudImage = wordCloud.getBufferedImage();
     }
+    
+    private void drawSidebar(Graphics2D g2d) {
+        g2d.setColor(Color.LIGHT_GRAY);
+        g2d.fillRect(0, 0, SIDEBAR_WIDTH, getHeight());
 
+        g2d.setColor(Color.BLACK);
+        g2d.drawString("Sidebar", 10, 20);
+    }
+
+    @Override
+    public Dimension getPreferredSize() {
+        return new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT);
+    }
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
@@ -82,9 +97,13 @@ public class WordCloudPanel extends JPanel {
 
         // Draw the word cloud image onto the panel
         if (wordCloudImage != null) {
-            g2d.drawImage(wordCloudImage, 0, 0, this);
+            g2d.drawImage(wordCloudImage, SIDEBAR_WIDTH, 0, this);
         }
+
+        // Draw the sidebar
+        drawSidebar(g2d);
     }
+
 
     
 }
