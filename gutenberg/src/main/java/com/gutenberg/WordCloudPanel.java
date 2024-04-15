@@ -215,10 +215,14 @@ public class WordCloudPanel extends JPanel {
         wordCloud.setColorPalette(new ColorPalette(Color.RED, Color.BLUE, Color.GREEN));
 
         // Build the word cloud using the filtered word frequencies
+        System.out.println("Rendering new Cloud, Please Wait");
         wordCloud.build(filteredWordFrequencies);
+        System.out.println("Cloud Built");
 
         // Store the generated word cloud image
         wordCloudImage = wordCloud.getBufferedImage();
+        System.out.println("Cloud Rendered");
+
     }
 
     @Override
