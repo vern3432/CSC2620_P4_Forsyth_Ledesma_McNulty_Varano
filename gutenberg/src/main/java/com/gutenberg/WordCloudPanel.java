@@ -203,7 +203,7 @@ public class WordCloudPanel extends JPanel {
 
     private void setupWordCloud() {
         // Define the size of the word cloud
-        Dimension dimension = new Dimension(DEFAULT_WIDTH - SIDEBAR_WIDTH, DEFAULT_HEIGHT);
+        Dimension dimension = new Dimension(DEFAULT_WIDTH - SIDEBAR_WIDTH+500, DEFAULT_HEIGHT+500);
 
         // Create a new word cloud object with the specified dimension and collision mode
         wordCloud = new WordCloud(dimension, CollisionMode.PIXEL_PERFECT);
