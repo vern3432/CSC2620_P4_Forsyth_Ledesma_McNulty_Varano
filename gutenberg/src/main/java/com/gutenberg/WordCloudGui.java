@@ -19,7 +19,7 @@ public class WordCloudGui {
     }
 
     // Method to create and show the GUI
-    private void createAndShowGUI() {
+    void createAndShowGUI() {
         // Create a JFrame
         JFrame frame = new JFrame("Word Cloud Application");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -98,7 +98,6 @@ public class WordCloudGui {
         menuBar.add(fileMenu);
 
         // Add more menus as needed, such as Options, Help, etc.
-        // You can add additional functionality in these menus
 
         return menuBar;
     }

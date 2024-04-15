@@ -164,7 +164,6 @@ public class WordCloudPanel extends JPanel {
 
     private boolean isAuthorName(String word) {
         // This method should implement logic to determine if a word is an author's name
-        // You can customize this logic as needed, using regex or other approaches
         return Character.isUpperCase(word.charAt(0));
     }
 
