@@ -8,6 +8,8 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
+
 import javax.swing.*;
 
 import com.kennycason.kumo.WordCloud;
@@ -125,30 +127,38 @@ public class WordCloudPanel extends JPanel {
     }
 
     private void applyFilters() {
-        // Apply filtering logic based on selected checkboxes
+        // Regular expression patterns
+        Pattern ingPattern = Pattern.compile(".*ing$");
+        Pattern oughPattern = Pattern.compile(".*ough.*");
+        Pattern ismPattern = Pattern.compile(".*ism$");
+        Pattern knPattern = Pattern.compile("^kn.*");
+        Pattern aughPattern = Pattern.compile(".*augh.*");
+
+        // Apply filtering logic based on selected filters
         filteredWordFrequencies.clear();
 
         for (WordFrequency wordFrequency : wordFrequencies) {
             String word = wordFrequency.getWord();
             boolean includeWord = true;
 
-            if (useIngFilter && !word.endsWith("ing")) {
+            // Apply regular expression filters
+            if (useIngFilter && !ingPattern.matcher(word).matches()) {
                 includeWord = false;
             }
 
-            if (useOughFilter && !word.contains("ough")) {
+            if (useOughFilter && !oughPattern.matcher(word).matches()) {
                 includeWord = false;
             }
 
-            if (useIsmFilter && !word.endsWith("ism")) {
+            if (useIsmFilter && !ismPattern.matcher(word).matches()) {
                 includeWord = false;
             }
 
-            if (useKnFilter && !word.startsWith("kn")) {
+            if (useKnFilter && !knPattern.matcher(word).matches()) {
                 includeWord = false;
             }
 
-            if (useAughFilter && !word.contains("augh")) {
+            if (useAughFilter && !aughPattern.matcher(word).matches()) {
                 includeWord = false;
             }
 
@@ -161,7 +171,6 @@ public class WordCloudPanel extends JPanel {
             }
         }
     }
-
     private boolean isAuthorName(String word) {
         // This method should implement logic to determine if a word is an author's name
         return Character.isUpperCase(word.charAt(0));
@@ -180,7 +189,9 @@ public class WordCloudPanel extends JPanel {
         wordCloud.setColorPalette(new ColorPalette(Color.RED, Color.BLUE, Color.GREEN));
 
         // Build the word cloud using the filtered list of word frequencies
+        System.out.println("Building");
         wordCloud.build(filteredWordFrequencies);
+        System.out.println("Built");
 
         // Store the generated word cloud image
         wordCloudImage = wordCloud.getBufferedImage();
