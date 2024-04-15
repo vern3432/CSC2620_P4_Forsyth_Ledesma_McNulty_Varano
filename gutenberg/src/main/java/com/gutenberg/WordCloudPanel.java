@@ -21,6 +21,28 @@ public class WordCloudPanel extends JPanel {
     private WordCloud wordCloud;
     private BufferedImage wordCloudImage;
 
+    public WordCloudPanel(List<WordFrequency> wordFrequencies) {
+        // Define the size of the word cloud
+        Dimension dimension = new Dimension(400, 300);
+
+        // Create a word cloud object with specified dimension and collision mode
+        wordCloud = new WordCloud(dimension, CollisionMode.PIXEL_PERFECT);
+
+        // Set the background to a circle with radius of 100
+        wordCloud.setBackground(new CircleBackground(100));
+
+        // Set the font scalar for font size scaling
+        wordCloud.setFontScalar(new LinearFontScalar(10, 40));
+
+        // Set the color palette for word colors
+        wordCloud.setColorPalette(new ColorPalette(Color.RED, Color.BLUE, Color.GREEN));
+
+        // Build the word cloud using the list of word frequencies
+        wordCloud.build(wordFrequencies);
+
+        // Store the generated word cloud image
+        wordCloudImage = wordCloud.getBufferedImage();
+    }
     public WordCloudPanel() {
         // Define the size of the word cloud
         Dimension dimension = new Dimension(400, 300);

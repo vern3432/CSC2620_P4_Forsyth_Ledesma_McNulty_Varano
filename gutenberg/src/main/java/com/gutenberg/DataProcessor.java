@@ -1,4 +1,6 @@
-package com.gutenberg;import java.io.BufferedReader;
+package com.gutenberg;
+
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -7,19 +9,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
-
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class DataProcessor {
+
+    private static final int THREAD_POOL_SIZE = 5; // Number of threads in the thread pool
 
     // Constructor
     public DataProcessor() {
@@ -42,6 +40,9 @@ public class DataProcessor {
         // Get the class loader
         ClassLoader classLoader = DataProcessor.class.getClassLoader();
 
+        // Create a thread pool with a fixed size
+        ExecutorService executorService = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
+
         try {
             // Get the names of the files in the folder
             InputStream folderStream = classLoader.getResourceAsStream(folderPath);
@@ -50,30 +51,11 @@ public class DataProcessor {
             // Read each file name from the folder stream
             BufferedReader folderReader = new BufferedReader(new InputStreamReader(folderStream, StandardCharsets.UTF_8));
             String fileName;
-            // System.out.println(folderReader.toString());
+
             // Loop through each file name in the folder
             while ((fileName = folderReader.readLine()) != null) {
-                // Get the input stream for the current file
-                InputStream fileStream = classLoader.getResourceAsStream(folderPath + fileName.trim()+"/pg"+fileName.trim()+".txt");
-                System.out.println("File:"+folderPath + fileName.trim()+"/pg"+fileName.trim()+".txt");
-
-                if (fileStream != null) {
-                    // Read file content using BufferedReader
-                    BufferedReader fileReader = new BufferedReader(new InputStreamReader(fileStream, StandardCharsets.UTF_8));
-                    StringBuilder fileContent = new StringBuilder();
-                    String line;
-                    // Read file line by line
-                    while ((line = fileReader.readLine()) != null) {
-                        // System.out.println("Line:"+line.toString());
-                        fileContent.append(line).append("\n");
-                    }
-
-                    // Add file content to the map with the file name as the key
-                    dataMap.put(fileName.trim(), fileContent.toString());
-
-                    // Close the file reader
-                    fileReader.close();
-                } else{System.out.println("NUll");}
+                // Submit the file processing task to the executor service
+                executorService.submit(new FileProcessorTask(fileName.trim(), dataMap, classLoader, folderPath));
             }
 
             // Close the folder reader
@@ -81,7 +63,15 @@ public class DataProcessor {
 
         } catch (IOException e) {
             System.err.println("Error reading files from gutenberg-data folder.");
-            e.fillInStackTrace();
+            e.printStackTrace();
+        }
+
+        // Shutdown the executor service and wait for all tasks to complete
+        executorService.shutdown();
+        try {
+            executorService.awaitTermination(1, TimeUnit.HOURS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
         }
 
         return dataMap;
@@ -147,6 +137,9 @@ public class DataProcessor {
         return authors;
     }
 
+    /**
+     * Main method for demonstration.
+     */
     public static void main(String[] args) {
         // Read data from gutenberg-data folder
         Map<String, String> dataMap = readFromGutenbergData();
@@ -156,17 +149,66 @@ public class DataProcessor {
             String fileName = entry.getKey();
             String fileContent = entry.getValue();
 
-            System.out.println("File Name: " + fileName+"Length:"+fileContent.length());
+            System.out.println("File Name: " + fileName + " Length: " + fileContent.length());
 
             // Apply filters to the content
             Map<String, Integer> filteredWords = applyFilters(fileContent);
-             System.out.println("Filtered Words and Frequencies: " + filteredWords);
+            System.out.println("Filtered Words and Frequencies: " + filteredWords);
 
             // Extract authors' names from the content
             ArrayList<String> authors = extractAuthors(fileContent);
             System.out.println("Authors: " + authors);
 
             System.out.println("-----");
+        }
+    }
+
+    /**
+     * Runnable class that processes file data.
+     */
+    private static class FileProcessorTask implements Runnable {
+        private final String fileName;
+        private final Map<String, String> dataMap;
+        private final ClassLoader classLoader;
+        private final String folderPath;
+
+        public FileProcessorTask(String fileName, Map<String, String> dataMap, ClassLoader classLoader, String folderPath) {
+            this.fileName = fileName;
+            this.dataMap = dataMap;
+            this.classLoader = classLoader;
+            this.folderPath = folderPath;
+        }
+
+        @Override
+        public void run() {
+            try {
+                // Get the input stream for the current file
+                InputStream fileStream = classLoader.getResourceAsStream(folderPath + fileName + "/pg" + fileName + ".txt");
+                if (fileStream != null) {
+                    // Read file content using BufferedReader
+                    BufferedReader fileReader = new BufferedReader(new InputStreamReader(fileStream, StandardCharsets.UTF_8));
+                    StringBuilder fileContent = new StringBuilder();
+                    String line;
+
+                    // Read file line by line
+                    while ((line = fileReader.readLine()) != null) {
+                        fileContent.append(line).append("\n");
+                    }
+
+                    // Add file content to the map with the file name as the key
+                    synchronized (dataMap) {
+                        dataMap.put(fileName, fileContent.toString());
+                    }
+
+                    // Close the file reader
+                    fileReader.close();
+                } else {
+                    System.out.println("Null file stream for file: " + folderPath + fileName);
+                }
+            } catch (IOException e) {
+                System.err.println("Error reading file: " + fileName);
+                e.printStackTrace();
+            }
         }
     }
 }
