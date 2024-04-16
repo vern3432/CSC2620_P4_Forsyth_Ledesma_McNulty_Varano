@@ -1,4 +1,4 @@
-package com.gutenberg;
+package com.gutenberg.panels;
 
 import java.awt.BorderLayout;
 import java.awt.Color;
@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 
 import javax.swing.*;
 
+import com.gutenberg.cloud.WordCloudStorage;
 import com.kennycason.kumo.WordCloud;
 import com.kennycason.kumo.WordFrequency;
 import com.kennycason.kumo.bg.CircleBackground;
@@ -21,10 +22,12 @@ import com.kennycason.kumo.CollisionMode;
 import com.kennycason.kumo.font.scale.LinearFontScalar;
 import com.kennycason.kumo.palette.ColorPalette;
 
+import static com.gutenberg.Filters.*;
+
 public class WordCloudPanel extends JPanel {
     private WordCloud wordCloud;
     private BufferedImage wordCloudImage;
-    private List<WordFrequency> wordFrequencies;
+    private WordCloudStorage wordCloudStorage;
     private List<WordFrequency> filteredWordFrequencies;
 
     private static final int DEFAULT_WIDTH = 600;
@@ -39,20 +42,12 @@ public class WordCloudPanel extends JPanel {
     private JCheckBox cbAughFilter;
     private JCheckBox cbAuthorFilter;
 
-    // Boolean options for filters
-    private boolean useIngFilter = false;
-    private boolean useOughFilter = false;
-    private boolean useIsmFilter = false;
-    private boolean useKnFilter = false;
-    private boolean useAughFilter = false;
-    private boolean useAuthorFilter = false;
-
     // Cache to store filtered and rendered word cloud images
     private Map<String, BufferedImage> wordCloudCache = new HashMap<>();
 
-    public WordCloudPanel(List<WordFrequency> wordFrequencies) {
-        this.wordFrequencies = wordFrequencies;
-        this.filteredWordFrequencies = new ArrayList<>(wordFrequencies);
+    public WordCloudPanel(WordCloudStorage wordCloudStorage) {
+        this.wordCloudStorage = wordCloudStorage;
+        this.filteredWordFrequencies = new ArrayList<>();
 
         setLayout(new BorderLayout());
 
@@ -81,12 +76,12 @@ public class WordCloudPanel extends JPanel {
         cbAuthorFilter = new JCheckBox("Author's names");
 
         // Add action listeners to the checkboxes
-        addFilterActionListener(cbIngFilter, () -> useIngFilter = cbIngFilter.isSelected());
-        addFilterActionListener(cbOughFilter, () -> useOughFilter = cbOughFilter.isSelected());
-        addFilterActionListener(cbIsmFilter, () -> useIsmFilter = cbIsmFilter.isSelected());
-        addFilterActionListener(cbKnFilter, () -> useKnFilter = cbKnFilter.isSelected());
-        addFilterActionListener(cbAughFilter, () -> useAughFilter = cbAughFilter.isSelected());
-        addFilterActionListener(cbAuthorFilter, () -> useAuthorFilter = cbAuthorFilter.isSelected());
+        addFilterActionListener(cbIngFilter);
+        addFilterActionListener(cbOughFilter);
+        addFilterActionListener(cbIsmFilter);
+        addFilterActionListener(cbKnFilter);
+        addFilterActionListener(cbAughFilter);
+        addFilterActionListener(cbAuthorFilter);
 
         // Add checkboxes to the side panel
         sidePanel.add(cbIngFilter);
@@ -99,9 +94,8 @@ public class WordCloudPanel extends JPanel {
         return sidePanel;
     }
 
-    private void addFilterActionListener(JCheckBox checkBox, Runnable action) {
+    private void addFilterActionListener(JCheckBox checkBox) {
         checkBox.addActionListener(e -> {
-            action.run();
             updateFiltersAndWordCloud();
         });
     }
@@ -131,6 +125,7 @@ public class WordCloudPanel extends JPanel {
         String filterKey = generateFilterKey();
         wordCloudImage = wordCloudCache.get(filterKey);
     }
+
     private void cacheDefaultWordCloud() {
         // Generate the default filter key
         String filterKey = generateFilterKey();
@@ -144,56 +139,33 @@ public class WordCloudPanel extends JPanel {
     }
 
     private String generateFilterKey() {
-        return useIngFilter + "-" + useOughFilter + "-" + useIsmFilter + "-" +
-               useKnFilter + "-" + useAughFilter + "-" + useAuthorFilter;
+        return cbIngFilter.isSelected() + "-" + cbOughFilter.isSelected() + "-"
+                + cbIsmFilter.isSelected() + "-" + cbKnFilter.isSelected() + "-"
+                + cbAughFilter.isSelected() + "-" + cbAuthorFilter.isSelected();
     }
 
     private void applyFilters() {
-        // Regular expression patterns for each filter
-        Pattern ingPattern = Pattern.compile(".*ing$");
-        Pattern oughPattern = Pattern.compile(".*ough.*");
-        Pattern ismPattern = Pattern.compile(".*ism$");
-        Pattern knPattern = Pattern.compile("^kn.*");
-        Pattern aughPattern = Pattern.compile(".*augh.*");
 
         // Clear the filtered word frequencies list
         filteredWordFrequencies.clear();
 
         // Apply the selected filters to the word frequencies list
-        for (WordFrequency wordFrequency : wordFrequencies) {
-            String word = wordFrequency.getWord();
-            boolean includeWord = true;
-
-            // Apply the filters
-            if (useIngFilter && !ingPattern.matcher(word).matches()) {
-                includeWord = false;
-            }
-
-            if (useOughFilter && !oughPattern.matcher(word).matches()) {
-                includeWord = false;
-            }
-
-            if (useIsmFilter && !ismPattern.matcher(word).matches()) {
-                includeWord = false;
-            }
-
-            if (useKnFilter && !knPattern.matcher(word).matches()) {
-                includeWord = false;
-            }
-
-            if (useAughFilter && !aughPattern.matcher(word).matches()) {
-                includeWord = false;
-            }
-
-            if (useAuthorFilter && !isAuthorName(word)) {
-                includeWord = false;
-            }
-
-            // Add the word frequency to the filtered list if it meets the filter criteria
-            if (includeWord) {
+        wordCloudStorage.getWords().parallelStream().forEach(wordFrequency -> {
+            var word = wordFrequency.getWord();
+            if (cbIngFilter.isSelected() && !ingPattern.matcher(word).matches()) {
+                filteredWordFrequencies.add(wordFrequency);
+            } else if (cbOughFilter.isSelected() && !oughPattern.matcher(word).matches()) {
+                filteredWordFrequencies.add(wordFrequency);
+            } else if (cbIsmFilter.isSelected() && !ismPattern.matcher(word).matches()) {
+                filteredWordFrequencies.add(wordFrequency);
+            } else if (cbKnFilter.isSelected() && !knPattern.matcher(word).matches()) {
+                filteredWordFrequencies.add(wordFrequency);
+            } else if (cbAughFilter.isSelected() && !aughPattern.matcher(word).matches()) {
+                filteredWordFrequencies.add(wordFrequency);
+            } else if (cbAuthorFilter.isSelected() && !isAuthorName(word)) {
                 filteredWordFrequencies.add(wordFrequency);
             }
-        }
+        });
     }
 
     private boolean isAuthorName(String word) {
@@ -203,7 +175,7 @@ public class WordCloudPanel extends JPanel {
 
     private void setupWordCloud() {
         // Define the size of the word cloud
-        Dimension dimension = new Dimension(DEFAULT_WIDTH - SIDEBAR_WIDTH+500, DEFAULT_HEIGHT+500);
+        Dimension dimension = new Dimension(DEFAULT_WIDTH - SIDEBAR_WIDTH + 500, DEFAULT_HEIGHT + 500);
 
         // Create a new word cloud object with the specified dimension and collision mode
         wordCloud = new WordCloud(dimension, CollisionMode.PIXEL_PERFECT);
@@ -214,12 +186,8 @@ public class WordCloudPanel extends JPanel {
         wordCloud.setColorPalette(new ColorPalette(Color.RED, Color.BLUE, Color.GREEN));
 
         // Build the word cloud using the filtered word frequencies
-        System.out.println("Rendering new Cloud, Please Wait");
-        long startTime = System.currentTimeMillis();
-        wordCloud.build(filteredWordFrequencies);
-        long endTime = System.currentTimeMillis();
-
-        System.out.println("Cloud Built"+":"+"Took:"+(endTime - startTime));
+        this.filteredWordFrequencies = wordCloudStorage.getWords();
+        wordCloud.build(this.filteredWordFrequencies);
 
         // Store the generated word cloud image
         wordCloudImage = wordCloud.getBufferedImage();

@@ -1,13 +1,12 @@
 package com.gutenberg;
 
+import com.gutenberg.cloud.WordCloudStorage;
+import com.gutenberg.loading.CollectionProcessor;
+import com.gutenberg.panels.StatusPanel;
+import com.gutenberg.panels.WordCloudPanel;
+
 import javax.swing.*;
 import java.awt.*;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.*;
-import java.util.stream.Collectors;
-
-import com.kennycason.kumo.WordFrequency;
 
 public class WordCloudGui {
 
@@ -28,55 +27,20 @@ public class WordCloudGui {
         // Create a JTabbedPane for multiple word cloud tabs
         JTabbedPane tabbedPane = new JTabbedPane();
 
-        // Initialize an executor service with a fixed thread pool size
-        ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
-
-        // Read data from gutenberg-data folder using DataProcessor
-        Map<String, String> dataMap = DataProcessor.readFromGutenbergData();
-
-        // Create a concurrent map to hold the word frequencies without duplicates
-        ConcurrentMap<String, Integer> wordFrequenciesMap = new ConcurrentHashMap<>();
-
-        // Submit tasks to process data and calculate word frequencies concurrently
-        List<Callable<Void>> tasks = dataMap.entrySet().stream()
-            .map(entry -> (Callable<Void>) () -> {
-                String fileContent = entry.getValue();
-                Map<String, Integer> frequencies = DataProcessor.applyFilters(fileContent);
-                
-                // Merge the frequencies into the concurrent map
-                frequencies.forEach((word, frequency) -> 
-                    wordFrequenciesMap.merge(word, frequency, Integer::sum)
-                );
-                
-                return null;
-            }).collect(Collectors.toList());
-
-        // Submit all tasks to the executor service and wait for completion
-        try {
-            executorService.invokeAll(tasks);
-            executorService.shutdown();
-            executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
-
-        // Convert the map to a list of WordFrequency objects
-        List<WordFrequency> wordFrequenciesList = wordFrequenciesMap.entrySet().stream()
-            .map(entry -> new WordFrequency(entry.getKey(), entry.getValue()))
-            .collect(Collectors.toList());
+        var wordCloud = new WordCloudStorage();
+        var statusPanel = new StatusPanel();
+        var collectionProcessor = new CollectionProcessor(wordCloud, statusPanel);
+        collectionProcessor.process();
 
         // Create a WordCloudPanel with the word frequencies list
-        WordCloudPanel wordCloudPanel = new WordCloudPanel(wordFrequenciesList);
+        WordCloudPanel wordCloudPanel = new WordCloudPanel(wordCloud);
 
         // Add the WordCloudPanel as a tab in the tabbedPane
         tabbedPane.addTab("Word Cloud", wordCloudPanel);
 
         // Add the tabbedPane to the frame
         frame.add(tabbedPane, BorderLayout.CENTER);
-
-        // Create a JMenuBar and menus for the frame
-        JMenuBar menuBar = createMenuBar();
-        frame.setJMenuBar(menuBar);
+        frame.add(statusPanel, BorderLayout.SOUTH);
 
         // Make the frame visible
         frame.setVisible(true);

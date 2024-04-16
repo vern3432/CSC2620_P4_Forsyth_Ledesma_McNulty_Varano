@@ -7,8 +7,8 @@ public class Main {
         // Create an instance of WordCloudGui and display the GUI
         SwingUtilities.invokeLater(() -> {
             new WordCloudGui().createAndShowGUI();
-        });   
-    
+        });
+
     
     }
 }
