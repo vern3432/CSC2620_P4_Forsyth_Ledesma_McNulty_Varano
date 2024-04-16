@@ -20,7 +20,9 @@ import com.kennycason.kumo.WordFrequency;
 import com.kennycason.kumo.bg.CircleBackground;
 import com.kennycason.kumo.CollisionMode;
 import com.kennycason.kumo.font.scale.LinearFontScalar;
+import com.kennycason.kumo.font.scale.SqrtFontScalar;
 import com.kennycason.kumo.palette.ColorPalette;
+import com.kennycason.kumo.palette.LinearGradientColorPalette;
 
 import static com.gutenberg.Filters.*;
 
@@ -31,7 +33,7 @@ public class WordCloudPanel extends JPanel {
     private List<WordFrequency> filteredWordFrequencies;
 
     private static final int DEFAULT_WIDTH = 600;
-    private static final int DEFAULT_HEIGHT = 400;
+    private static final int DEFAULT_HEIGHT = 600;
     private static final int SIDEBAR_WIDTH = 200;
 
     // Checkboxes for filtering options
@@ -42,8 +44,6 @@ public class WordCloudPanel extends JPanel {
     private JCheckBox cbAughFilter;
     private JCheckBox cbAuthorFilter;
 
-    // Cache to store filtered and rendered word cloud images
-    private Map<String, BufferedImage> wordCloudCache = new HashMap<>();
 
     public WordCloudPanel(WordCloudStorage wordCloudStorage) {
         this.wordCloudStorage = wordCloudStorage;
@@ -60,6 +60,8 @@ public class WordCloudPanel extends JPanel {
         // Setup the initial word cloud using the cached default image
         setupInitialWordCloud();
         // add(new JLabel(new ImageIcon(wordCloudImage)), BorderLayout.CENTER);
+
+
     }
 
     private JPanel createSidePanel() {
@@ -106,15 +108,8 @@ public class WordCloudPanel extends JPanel {
         // Generate a unique key for the current filter state
         String filterKey = generateFilterKey();
 
-        // Check if the filtered and rendered word cloud image is in the cache
-        if (wordCloudCache.containsKey(filterKey)) {
-            // Use the cached word cloud image
-            wordCloudImage = wordCloudCache.get(filterKey);
-        } else {
-            // Build and cache a new word cloud image for the current filter state
-            setupWordCloud();
-            wordCloudCache.put(filterKey, wordCloudImage);
-        }
+        // Build and cache a new word cloud image for the current filter state
+        setupWordCloud();
 
         // Repaint the panel to reflect the updated word cloud
         repaint();
@@ -123,19 +118,14 @@ public class WordCloudPanel extends JPanel {
     private void setupInitialWordCloud() {
         // Use the cached default word cloud image
         String filterKey = generateFilterKey();
-        wordCloudImage = wordCloudCache.get(filterKey);
+        // wordCloudImage = wordCloudCache.get(filterKey);
     }
 
     private void cacheDefaultWordCloud() {
         // Generate the default filter key
         String filterKey = generateFilterKey();
 
-        // Check if the default word cloud image is not already cached
-        if (!wordCloudCache.containsKey(filterKey)) {
-            // Build and cache the default word cloud image
-            setupWordCloud();
-            wordCloudCache.put(filterKey, wordCloudImage);
-        }
+        setupWordCloud();
     }
 
     private String generateFilterKey() {
@@ -174,19 +164,16 @@ public class WordCloudPanel extends JPanel {
     }
 
     private void setupWordCloud() {
-        // Define the size of the word cloud
-        Dimension dimension = new Dimension(DEFAULT_WIDTH - SIDEBAR_WIDTH + 500, DEFAULT_HEIGHT + 500);
-
         // Create a new word cloud object with the specified dimension and collision mode
-        wordCloud = new WordCloud(dimension, CollisionMode.PIXEL_PERFECT);
+        wordCloud = new WordCloud(getPreferredSize(), CollisionMode.PIXEL_PERFECT);
 
-        // Set background, font scalar, and color palette
-        wordCloud.setBackground(new CircleBackground(100));
-        wordCloud.setFontScalar(new LinearFontScalar(10, 40));
-        wordCloud.setColorPalette(new ColorPalette(Color.RED, Color.BLUE, Color.GREEN));
+        wordCloud.setPadding(2);
+        wordCloud.setBackground(new CircleBackground(300));
+        wordCloud.setColorPalette(new LinearGradientColorPalette(Color.RED, Color.BLUE, Color.GREEN, 30, 30));
+        wordCloud.setFontScalar(new SqrtFontScalar(10, 40));
 
         // Build the word cloud using the filtered word frequencies
-        this.filteredWordFrequencies = wordCloudStorage.getWords();
+        System.out.println("********* " + this.filteredWordFrequencies.size());
         wordCloud.build(this.filteredWordFrequencies);
 
         // Store the generated word cloud image

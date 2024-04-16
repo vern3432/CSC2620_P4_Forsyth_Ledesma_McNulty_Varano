@@ -76,6 +76,9 @@ public class CollectionProcessor {
                 Matcher matcher = wordPattern.matcher(line);
                 while(matcher.find()) {
                     String word = matcher.group().toLowerCase();
+                    if (word.length()  < 5) {
+                        continue;
+                    }
                     // Check each filter pattern and add to frequency map
                     if (patternIng.matcher(word).find() ||
                             patternOugh.matcher(word).find() ||
