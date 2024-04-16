@@ -15,9 +15,13 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.xml.crypto.Data;
+
 public class DataProcessor {
 
+    Map<String, String> dataMap;
     private static final int THREAD_POOL_SIZE = 5; // Number of threads in the thread pool
+    ArrayList<String> extractedAuthors=new ArrayList<>();
 
     // Constructor
     public DataProcessor() {
@@ -30,7 +34,7 @@ public class DataProcessor {
      *
      * @return A map where the keys are file names and the values are file contents.
      */
-    public static Map<String, String> readFromGutenbergData() {
+    public  Map<String, String> readFromGutenbergData() {
         // Create a map to store file data
         Map<String, String> dataMap = new HashMap<>();
 
@@ -72,6 +76,15 @@ public class DataProcessor {
             executorService.awaitTermination(1, TimeUnit.HOURS);
         } catch (InterruptedException e) {
             e.printStackTrace();
+        }
+        this.dataMap=dataMap;
+
+        for (Map.Entry<String, String> entry : dataMap.entrySet()) {
+            String fileName = entry.getKey();
+            String fileContent = entry.getValue();
+            // Extract authors' names from the content
+            ArrayList<String> authors = extractAuthors(fileContent);
+            this.extractedAuthors.addAll(authors);
         }
 
         return dataMap;
@@ -121,7 +134,7 @@ public class DataProcessor {
      * @param content The text content to extract authors' names from.
      * @return A list of authors' names found in the content.
      */
-    public static ArrayList<String> extractAuthors(String content) {
+    public ArrayList<String> extractAuthors(String content) {
         ArrayList<String> authors = new ArrayList<>();
         
         // Define the regex pattern for extracting authors' names
@@ -141,26 +154,38 @@ public class DataProcessor {
      * Main method for demonstration.
      */
     public static void main(String[] args) {
-        // Read data from gutenberg-data folder
-        Map<String, String> dataMap = readFromGutenbergData();
+        DataProcessor proccProcessor=new DataProcessor();
+        Map<String, String> dataMap = proccProcessor.readFromGutenbergData();
+        System.out.println(proccProcessor.getExtractedAuthors());       
 
-        // Iterate over each file and apply filters and extract authors
-        for (Map.Entry<String, String> entry : dataMap.entrySet()) {
-            String fileName = entry.getKey();
-            String fileContent = entry.getValue();
+// // Read data from gutenberg-data folder
+        // Map<String, String> dataMap = readFromGutenbergData();
 
-            System.out.println("File Name: " + fileName + " Length: " + fileContent.length());
+        // // Iterate over each file and apply filters and extract authors
+        // for (Map.Entry<String, String> entry : dataMap.entrySet()) {
+        //     String fileName = entry.getKey();
+        //     String fileContent = entry.getValue();
 
-            // Apply filters to the content
-            Map<String, Integer> filteredWords = applyFilters(fileContent);
-            System.out.println("Filtered Words and Frequencies: " + filteredWords);
+        //     System.out.println("File Name: " + fileName + " Length: " + fileContent.length());
 
-            // Extract authors' names from the content
-            ArrayList<String> authors = extractAuthors(fileContent);
-            System.out.println("Authors: " + authors);
+        //     // Apply filters to the content
+        //     Map<String, Integer> filteredWords = applyFilters(fileContent);
+        //     System.out.println("Filtered Words and Frequencies: " + filteredWords);
 
-            System.out.println("-----");
-        }
+        //     // Extract authors' names from the content
+        //     ArrayList<String> authors = extractAuthors(fileContent);
+        //     System.out.println("Authors: " + authors);
+
+        //     System.out.println("-----");
+        // }
+    }
+
+    public ArrayList<String> getExtractedAuthors() {
+        return extractedAuthors;
+    }
+
+    public void setExtractedAuthors(ArrayList<String> extractedAuthors) {
+        this.extractedAuthors = extractedAuthors;
     }
 
     /**

@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import com.kennycason.kumo.WordFrequency;
 
 public class WordCloudGui {
+    DataProcessor processor;
 
     public static void main(String[] args) {
         // Create an instance of WordCloudGui and display the GUI
@@ -32,7 +33,8 @@ public class WordCloudGui {
         ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
         // Read data from gutenberg-data folder using DataProcessor
-        Map<String, String> dataMap = DataProcessor.readFromGutenbergData();
+        this.processor=new DataProcessor();
+        Map<String, String> dataMap = this.processor.readFromGutenbergData();
 
         // Create a concurrent map to hold the word frequencies without duplicates
         ConcurrentMap<String, Integer> wordFrequenciesMap = new ConcurrentHashMap<>();
@@ -66,7 +68,7 @@ public class WordCloudGui {
             .collect(Collectors.toList());
 
         // Create a WordCloudPanel with the word frequencies list
-        WordCloudPanel wordCloudPanel = new WordCloudPanel(wordFrequenciesList);
+        WordCloudPanel wordCloudPanel = new WordCloudPanel(wordFrequenciesList,this.processor.getExtractedAuthors());
 
         // Add the WordCloudPanel as a tab in the tabbedPane
         tabbedPane.addTab("Word Cloud", wordCloudPanel);

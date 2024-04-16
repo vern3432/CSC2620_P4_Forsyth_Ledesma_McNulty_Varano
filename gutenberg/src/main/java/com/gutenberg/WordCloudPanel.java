@@ -11,6 +11,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.swing.*;
 
@@ -49,10 +50,14 @@ public class WordCloudPanel extends JPanel {
 
     // Cache to store filtered and rendered word cloud images
     private Map<String, BufferedImage> wordCloudCache = new HashMap<>();
+    ArrayList<String> authors=new ArrayList<>();
+    private Map<String, Integer> authorFrequencyMap;
 
-    public WordCloudPanel(List<WordFrequency> wordFrequencies) {
+    public WordCloudPanel(List<WordFrequency> wordFrequencies,ArrayList<String> authors) {
+        this.authors=authors;
         this.wordFrequencies = wordFrequencies;
         this.filteredWordFrequencies = new ArrayList<>(wordFrequencies);
+        authorFrequencyMap = generateAuthorFrequencyMap(authors);
 
         setLayout(new BorderLayout());
 
@@ -66,6 +71,16 @@ public class WordCloudPanel extends JPanel {
         setupInitialWordCloud();
         // add(new JLabel(new ImageIcon(wordCloudImage)), BorderLayout.CENTER);
     }
+    private Map<String, Integer> generateAuthorFrequencyMap(ArrayList<String> authors) {
+        Map<String, Integer> frequencyMap = new HashMap<>();
+        
+        for (String author : authors) {
+            frequencyMap.put(author, frequencyMap.getOrDefault(author, 0) + 1);
+        }
+        
+        return frequencyMap;
+    }
+
 
     private JPanel createSidePanel() {
         JPanel sidePanel = new JPanel();
@@ -158,7 +173,13 @@ public class WordCloudPanel extends JPanel {
 
         // Clear the filtered word frequencies list
         filteredWordFrequencies.clear();
-
+        if (useAuthorFilter) {
+            // If author filter is selected, use the author frequency map
+            filteredWordFrequencies.addAll(authorFrequencyMap.entrySet()
+                    .stream()
+                    .map(entry -> new WordFrequency(entry.getKey(), entry.getValue()))
+                    .collect(Collectors.toList()));
+        } else {
         // Apply the selected filters to the word frequencies list
         for (WordFrequency wordFrequency : wordFrequencies) {
             String word = wordFrequency.getWord();
@@ -194,6 +215,7 @@ public class WordCloudPanel extends JPanel {
                 filteredWordFrequencies.add(wordFrequency);
             }
         }
+    }
     }
 
     private boolean isAuthorName(String word) {
