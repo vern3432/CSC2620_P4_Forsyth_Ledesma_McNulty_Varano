@@ -269,7 +269,9 @@ public class WordCloudPanel extends JPanel {
                 long startTime = System.currentTimeMillis();
                 
                 // Build the word cloud using the filtered word frequencies
-                wordCloud.build(filteredWordFrequencies);
+                List<WordFrequency> top100Frequencies = new TopWordFrequenciesReducer().reduce(filteredWordFrequencies);
+
+                wordCloud.build(top100Frequencies);
                 
                 // Store the generated word cloud image
                 wordCloudImage = wordCloud.getBufferedImage();
