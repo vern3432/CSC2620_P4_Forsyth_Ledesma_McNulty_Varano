@@ -11,6 +11,11 @@ public class TopWordFrequenciesReducer {
     private static final int MAX_THREADS = Runtime.getRuntime().availableProcessors()-1;
     private static final int DEFAULT_LIMIT = 100;
 
+    
+    /** 
+     * @param filteredWordFrequencies
+     * @return List<WordFrequency>
+     */
     public List<WordFrequency> reduce(List<WordFrequency> filteredWordFrequencies) {
         // Use the default limit if no limit is provided
         return reduce(filteredWordFrequencies, DEFAULT_LIMIT);

@@ -120,6 +120,10 @@ public class WordCloudGui {
         return menuBar;
     }
 
+    
+    /** 
+     * @param folderPath
+     */
     // Method to create a new WordCloudPanel based on the specified directory
     private void createNewWordCloudPanel(String folderPath) {
         // Read data from the specified folder path using DataProcessor

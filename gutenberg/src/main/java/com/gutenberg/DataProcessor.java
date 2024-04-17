@@ -246,6 +246,10 @@ public class DataProcessor {
         return extractedAuthors;
     }
 
+    
+    /** 
+     * @param extractedAuthors
+     */
     public void setExtractedAuthors(ArrayList<String> extractedAuthors) {
         this.extractedAuthors = extractedAuthors;
     }

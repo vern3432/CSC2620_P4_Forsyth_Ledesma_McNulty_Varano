@@ -183,6 +183,11 @@ public class WordCloudPanel extends JPanel {
 
     
 
+    
+    /** 
+     * @param checkBox
+     * @param action
+     */
     private void addFilterActionListener(JCheckBox checkBox, Runnable action) {
         checkBox.addActionListener(e -> {
             action.run();

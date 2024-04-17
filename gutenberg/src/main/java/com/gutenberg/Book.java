@@ -31,6 +31,10 @@ public class Book {
         this.language = language;
     }
 
+    
+    /** 
+     * @return String
+     */
     // Getters
     public String getTitle() {
         return title;
