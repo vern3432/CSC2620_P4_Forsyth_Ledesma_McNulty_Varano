@@ -81,7 +81,8 @@ public class CollectionProcessor {
                             Filters.knPattern.matcher(word).find() ||
                             Filters.aughPattern.matcher(word).find()) {
                         // Increment the word frequency
-                        wordFrequencyMap.merge(word, wordFrequencyMap.getOrDefault(word, 1), Integer::sum);
+                        var currentValue = wordFrequencyMap.getOrDefault(word, 0);
+                        wordFrequencyMap.put(word, currentValue + 1);
                     }
 
                 }
