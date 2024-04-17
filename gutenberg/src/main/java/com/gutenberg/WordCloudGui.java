@@ -90,6 +90,10 @@ public class WordCloudGui {
         frame.setVisible(true);
     }
 
+    
+    /** 
+     * @return JMenuBar
+     */
     // Method to create a JMenuBar with menus and menu items
     private JMenuBar createMenuBar() {
         JMenuBar menuBar = new JMenuBar();

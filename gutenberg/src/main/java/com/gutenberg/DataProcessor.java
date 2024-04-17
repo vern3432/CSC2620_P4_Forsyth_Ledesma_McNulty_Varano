@@ -238,6 +238,10 @@ public class DataProcessor {
         // }
     }
 
+    
+    /** 
+     * @return ArrayList<String>
+     */
     public ArrayList<String> getExtractedAuthors() {
         return extractedAuthors;
     }

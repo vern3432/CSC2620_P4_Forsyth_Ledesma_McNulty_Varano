@@ -11,6 +11,11 @@ import com.kennycason.kumo.WordFrequency;
 public class TopWordFrequenciesReducer {
     private static final int MAX_THREADS = Runtime.getRuntime().availableProcessors();
 
+    
+    /** 
+     * @param filteredWordFrequencies
+     * @return List<WordFrequency>
+     */
     public List<WordFrequency> reduce(List<WordFrequency> filteredWordFrequencies) {
         // If the list has 100 or fewer elements, return it as is
         if (filteredWordFrequencies.size() <= 100) {

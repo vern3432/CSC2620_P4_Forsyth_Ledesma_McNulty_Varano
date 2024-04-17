@@ -91,6 +91,10 @@ public class WordCloudPanel extends JPanel {
     
 
 
+    
+    /** 
+     * @return JPanel
+     */
     private JPanel createSidePanel() {
         JPanel sidePanel = new JPanel();
         sidePanel.setPreferredSize(new Dimension(SIDEBAR_WIDTH, DEFAULT_HEIGHT));
