@@ -7,8 +7,11 @@ import com.gutenberg.panels.WordCloudPanel;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 
 public class WordCloudGui {
+
+    private CollectionProcessor collectionProcessor;
 
     public static void main(String[] args) {
         // Create an instance of WordCloudGui and display the GUI
@@ -29,8 +32,7 @@ public class WordCloudGui {
 
         var wordCloud = new WordCloudStorage();
         var statusPanel = new StatusPanel();
-        var collectionProcessor = new CollectionProcessor(wordCloud, statusPanel);
-        collectionProcessor.process();
+        collectionProcessor = new CollectionProcessor(wordCloud, statusPanel);
 
         // Create a WordCloudPanel with the word frequencies list
         WordCloudPanel wordCloudPanel = new WordCloudPanel(wordCloud, frame);
@@ -41,7 +43,7 @@ public class WordCloudGui {
         // Add the tabbedPane to the frame
         frame.add(tabbedPane, BorderLayout.CENTER);
         frame.add(statusPanel, BorderLayout.SOUTH);
-
+        frame.setJMenuBar(createMenuBar());
         // Make the frame visible
         frame.setVisible(true);
     }
@@ -52,11 +54,13 @@ public class WordCloudGui {
 
         // Create a "File" menu with a "New" menu item
         JMenu fileMenu = new JMenu("File");
-        JMenuItem newMenuItem = new JMenuItem("New");
+        JMenuItem newMenuItem = new JMenuItem("Process Directory");
         newMenuItem.addActionListener(e -> {
-            // Handle "New" menu item click
-            // Add functionality for creating a new word cloud, loading new data, etc.
-            System.out.println("New menu item clicked");
+            File newDir = selectDirectory();
+
+            if (newDir != null) {
+                collectionProcessor.process(newDir);
+            }
         });
         fileMenu.add(newMenuItem);
         menuBar.add(fileMenu);
@@ -65,4 +69,17 @@ public class WordCloudGui {
 
         return menuBar;
     }
+
+    public File selectDirectory() {
+        JFileChooser fileChooser = new JFileChooser();
+        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+        int result = fileChooser.showOpenDialog(null);
+
+        if (result == JFileChooser.APPROVE_OPTION) {
+            return fileChooser.getSelectedFile();
+        }
+
+        return null;
+    }
+
 }

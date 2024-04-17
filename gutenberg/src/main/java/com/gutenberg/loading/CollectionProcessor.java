@@ -5,6 +5,7 @@ import com.gutenberg.cloud.WordCloudStorage;
 import com.gutenberg.panels.StatusPanel;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileReader;
 import java.io.IOException;
 import java.net.URISyntaxException;
@@ -18,8 +19,6 @@ import java.util.regex.Pattern;
 import static com.gutenberg.RegexFilters.authorPattern;
 
 public class CollectionProcessor {
-    private final ClassLoader classLoader;
-    String folderPath = "/Users/maddie/JavaProjects/CSC2620_P4_Forsyth_Ledesma_McNulty_Varano/gutenberg/src/main/resources/gutenberg-data";
     private WordCloudStorage wordCloudStorage;
     private StatusPanel statusPanel;
 
@@ -31,11 +30,11 @@ public class CollectionProcessor {
     public CollectionProcessor(WordCloudStorage wordCloudStorage, StatusPanel statusPanel) {
         this.wordCloudStorage = wordCloudStorage;
         this.statusPanel = statusPanel;
-        this.classLoader = CollectionProcessor.class.getClassLoader();
     }
 
-    public void process() {
+    public void process(File folderPath) {
         Thread backgroundThread = new Thread(() -> {
+            statusPanel.startAnimation();
             ExecutorService executor = Executors.newFixedThreadPool(5);
             try {
                 CompletableFuture<Void> allTasks = processFolder(folderPath, executor);
@@ -55,9 +54,9 @@ public class CollectionProcessor {
         backgroundThread.start();
     }
 
-    private CompletableFuture<Void> processFolder(String folderPath, Executor executor) throws IOException, URISyntaxException {
+    private CompletableFuture<Void> processFolder(File folderPath, Executor executor) throws IOException, URISyntaxException {
         CompletableFuture<Void> allTasks = CompletableFuture.completedFuture(null);
-        allTasks = Files.walk(Paths.get(folderPath))
+        allTasks = Files.walk(folderPath.toPath())
                 .parallel() // Enable parallel traversal
                 .filter(Files::isRegularFile) // Process only regular files
                 .map(path -> CompletableFuture.runAsync(() -> processFile(path), executor))
