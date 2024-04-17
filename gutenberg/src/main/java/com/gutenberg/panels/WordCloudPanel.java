@@ -124,6 +124,11 @@ public class WordCloudPanel extends JPanel {
             try {
                 applyFilters();
 
+                if (isAnythingSelected() && this.filteredWordFrequencies.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, "No directory has been processed, please select one.", "Information", JOptionPane.INFORMATION_MESSAGE);
+                    return;
+                }
+
                 // Generate a unique key for the current filter state
                 String filterKey = generateFilterKey();
 
