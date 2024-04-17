@@ -41,6 +41,9 @@ public class WordCloudPanel extends JPanel {
     private JCheckBox cbKnFilter;
     private JCheckBox cbAughFilter;
     private JCheckBox cbAuthorFilter;
+    private JCheckBox cbStartsWithFilter;
+    private JCheckBox cbExcludeWordFilter;
+    private JCheckBox cbPreFilter;
 
 
     public WordCloudPanel(WordCloudStorage wordCloudStorage, JFrame parent) {
@@ -76,6 +79,11 @@ public class WordCloudPanel extends JPanel {
         cbAughFilter = new JCheckBox("Words containing 'augh'");
         cbAuthorFilter = new JCheckBox("Author's names");
 
+        //New
+        cbStartsWithFilter = setStartWithFilter();
+        cbExcludeWordFilter = new JCheckBox("Filter out selected word(s)");
+        cbPreFilter = new JCheckBox("Words starting with 'pre'");
+
         // Add action listeners to the checkboxes
         addFilterActionListener(cbIngFilter);
         addFilterActionListener(cbOughFilter);
@@ -91,6 +99,7 @@ public class WordCloudPanel extends JPanel {
         sidePanel.add(cbKnFilter);
         sidePanel.add(cbAughFilter);
         sidePanel.add(cbAuthorFilter);
+        sidePanel.add(cbStartsWithFilter);
 
         return sidePanel;
     }
@@ -220,4 +229,23 @@ public class WordCloudPanel extends JPanel {
     public Dimension getPreferredSize() {
         return new Dimension(DEFAULT_WIDTH, DEFAULT_HEIGHT);
     }
+
+    private boolean isAnythingSelected() {
+        return cbIngFilter.isSelected() || cbOughFilter.isSelected() ||
+                cbIsmFilter.isSelected() || cbKnFilter.isSelected() ||
+                cbAughFilter.isSelected() || cbAuthorFilter.isSelected();
+    }
+
+    private JCheckBox setStartWithFilter() {
+        var result = new JCheckBox("Filter words that start with");
+        result.addActionListener(e -> {
+            if (!isAnythingSelected()) {
+                JOptionPane.showMessageDialog(this, "You most select at least one of the top six options", "Error", JOptionPane.ERROR_MESSAGE);
+                cbStartsWithFilter.setSelected(false);
+            }
+        });
+        return result;
+    }
 }
+
+// JOptionPane.showMessageDialog(this, "Login successful!");
