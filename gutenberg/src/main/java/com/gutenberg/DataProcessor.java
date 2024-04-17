@@ -331,7 +331,7 @@ public class DataProcessor {
                     // Close the file reader
                     fileReader.close();
                 } else {
-                    System.out.println("Null file stream for file: " + folderPath + fileName);
+                    // System.out.println("Null file stream for file: " + folderPath + fileName);
                 }
             } catch (IOException e) {
                 System.err.println("Error reading file: " + fileName);
