@@ -238,7 +238,7 @@ public class WordCloudPanel extends JPanel {
         wordCloud = new WordCloud(dimension, CollisionMode.PIXEL_PERFECT);
 
         // Set background, font scalar, and color palette
-        wordCloud.setBackground(new CircleBackground(100));
+        wordCloud.setBackground(new CircleBackground(400));
         wordCloud.setFontScalar(new LinearFontScalar(10, 40));
         wordCloud.setColorPalette(new ColorPalette(Color.RED, Color.BLUE, Color.GREEN));
 
