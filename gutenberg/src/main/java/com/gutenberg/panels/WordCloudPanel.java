@@ -120,8 +120,8 @@ public class WordCloudPanel extends JPanel {
         // show the dialog
         var dlg = createProcessDialog();
         SwingUtilities.invokeLater(() -> dlg.setVisible(true));
-        try {
-            new Thread(() -> {
+        new Thread(() -> {
+            try {
                 applyFilters();
 
                 // Generate a unique key for the current filter state
@@ -133,12 +133,12 @@ public class WordCloudPanel extends JPanel {
                 System.out.println((System.currentTimeMillis() - start) + "ms");
 
                 // Repaint the panel to reflect the updated word cloud
-            }).start();
-        } finally {
-            // Hide the dialog after processing is done
-            SwingUtilities.invokeLater(dlg::dispose);
-            SwingUtilities.invokeLater(this::repaint);
-        }
+            } finally {
+                // Hide the dialog after processing is done
+                SwingUtilities.invokeLater(dlg::dispose);
+                SwingUtilities.invokeLater(this::repaint);
+            }
+        }).start();
 
     }
 
@@ -314,15 +314,16 @@ public class WordCloudPanel extends JPanel {
     }
 
     private JDialog createProcessDialog() {
-        var resut = new JDialog(parent, "Processing");
-        resut.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE); // Disable close button
-        resut.setSize(200, 100);
-        resut.setLocationRelativeTo(parent);
+        var result = new JDialog(parent, "Processing", true);
+        result.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE); // Disable close button
+        result.setSize(200, 100);
+        result.setLocationRelativeTo(parent);
+        result.setUndecorated(true);
 
         JLabel messageLabel = new JLabel("Rendering...");
         messageLabel.setHorizontalAlignment(SwingConstants.CENTER); // Center align the message
-        resut.add(messageLabel, BorderLayout.CENTER); // Add label to the center
-        return resut;
+        result.add(messageLabel, BorderLayout.CENTER); // Add label to the center
+        return result;
     }
 }
 
