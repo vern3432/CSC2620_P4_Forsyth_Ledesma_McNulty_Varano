@@ -1,6 +1,8 @@
 package com.gutenberg;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -21,7 +23,7 @@ public class DataProcessor {
 
     Map<String, String> dataMap;
     private static final int THREAD_POOL_SIZE = 5; // Number of threads in the thread pool
-    ArrayList<String> extractedAuthors=new ArrayList<>();
+    ArrayList<String> extractedAuthors = new ArrayList<>();
 
     // Constructor
     public DataProcessor() {
@@ -34,7 +36,7 @@ public class DataProcessor {
      *
      * @return A map where the keys are file names and the values are file contents.
      */
-    public  Map<String, String> readFromGutenbergData() {
+    public Map<String, String> readFromGutenbergData() {
         // Create a map to store file data
         Map<String, String> dataMap = new HashMap<>();
 
@@ -53,7 +55,8 @@ public class DataProcessor {
             Objects.requireNonNull(folderStream, "Folder stream is null.");
 
             // Read each file name from the folder stream
-            BufferedReader folderReader = new BufferedReader(new InputStreamReader(folderStream, StandardCharsets.UTF_8));
+            BufferedReader folderReader = new BufferedReader(
+                    new InputStreamReader(folderStream, StandardCharsets.UTF_8));
             String fileName;
 
             // Loop through each file name in the folder
@@ -77,7 +80,7 @@ public class DataProcessor {
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
-        this.dataMap=dataMap;
+        this.dataMap = dataMap;
 
         for (Map.Entry<String, String> entry : dataMap.entrySet()) {
             String fileName = entry.getKey();
@@ -90,6 +93,57 @@ public class DataProcessor {
         return dataMap;
     }
 
+    public Map<String, String> readFromGutenbergData(String directoryPath) {
+        System.out.println("Start Fresh From:"+directoryPath);
+        // Create a map to store file data
+        Map<String, String> dataMap = new HashMap<>();
+    
+        // Create a thread pool with a fixed size
+        ExecutorService executorService = Executors.newFixedThreadPool(THREAD_POOL_SIZE);
+    
+        // Get the folder as a File object
+        File directory = new File(directoryPath);
+        if (!directory.isDirectory()) {
+            System.err.println("Provided path is not a valid directory: " + directoryPath);
+            return dataMap;
+        }
+    
+        // Get the list of files in the directory
+        File[] files = directory.listFiles();
+        
+        if (files != null) {
+            // Iterate through each file in the directory
+            for (File file : files) {
+                if (file.isDirectory()) {
+                    // If the file is a directory, process the subdirectory recursively
+                    Map<String, String> subdirectoryDataMap = readFromGutenbergData(file.getAbsolutePath());
+                    dataMap.putAll(subdirectoryDataMap);
+                } else {
+                    // Process the file if it is not a directory
+                    executorService.submit(new FileProcessorTask2(file.getName(), dataMap, file.getAbsolutePath()));
+                }
+            }
+        }
+    
+        // Shutdown the executor service and wait for all tasks to complete
+        executorService.shutdown();
+        try {
+            executorService.awaitTermination(1, TimeUnit.HOURS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    
+        // Extract authors' names from file content
+        for (Map.Entry<String, String> entry : dataMap.entrySet()) {
+            String fileName = entry.getKey();
+            String fileContent = entry.getValue();
+            ArrayList<String> authors = extractAuthors(fileContent);
+            this.extractedAuthors.addAll(authors);
+        }
+    
+        return dataMap;
+    }
+
     /**
      * Applies the specified filters using regular expressions to the content.
      *
@@ -98,17 +152,17 @@ public class DataProcessor {
      */
     public static Map<String, Integer> applyFilters(String content) {
         Map<String, Integer> wordFrequencies = new HashMap<>();
-        
+
         // Define the regex patterns for the filters
         Pattern patternIng = Pattern.compile("\\b\\w+ing\\b");
         Pattern patternOugh = Pattern.compile("\\b\\w+ough\\b");
         Pattern patternIsm = Pattern.compile("\\b\\w+ism\\b");
         Pattern patternKn = Pattern.compile("\\bkn\\w+");
         Pattern patternAugh = Pattern.compile("\\b\\w+augh\\b");
-        
+
         // Define a pattern to split content into words
         Pattern wordPattern = Pattern.compile("\\b\\w+\\b");
-        
+
         // Use a matcher to find and count words according to the filters
         Matcher matcher = wordPattern.matcher(content);
         while (matcher.find()) {
@@ -116,10 +170,10 @@ public class DataProcessor {
 
             // Check each filter pattern and add to frequency map
             if (patternIng.matcher(word).find() ||
-                patternOugh.matcher(word).find() ||
-                patternIsm.matcher(word).find() ||
-                patternKn.matcher(word).find() ||
-                patternAugh.matcher(word).find()) {
+                    patternOugh.matcher(word).find() ||
+                    patternIsm.matcher(word).find() ||
+                    patternKn.matcher(word).find() ||
+                    patternAugh.matcher(word).find()) {
                 // Increment the word frequency
                 wordFrequencies.put(word, wordFrequencies.getOrDefault(word, 0) + 1);
             }
@@ -136,7 +190,7 @@ public class DataProcessor {
      */
     public ArrayList<String> extractAuthors(String content) {
         ArrayList<String> authors = new ArrayList<>();
-        
+
         // Define the regex pattern for extracting authors' names
         Pattern authorPattern = Pattern.compile("(?i)Author:\\s*([^\\n]+)");
 
@@ -154,29 +208,30 @@ public class DataProcessor {
      * Main method for demonstration.
      */
     public static void main(String[] args) {
-        DataProcessor proccProcessor=new DataProcessor();
+        DataProcessor proccProcessor = new DataProcessor();
         Map<String, String> dataMap = proccProcessor.readFromGutenbergData();
-        System.out.println(proccProcessor.getExtractedAuthors());       
+        System.out.println(proccProcessor.getExtractedAuthors());
 
-// // Read data from gutenberg-data folder
+        // // Read data from gutenberg-data folder
         // Map<String, String> dataMap = readFromGutenbergData();
 
         // // Iterate over each file and apply filters and extract authors
         // for (Map.Entry<String, String> entry : dataMap.entrySet()) {
-        //     String fileName = entry.getKey();
-        //     String fileContent = entry.getValue();
+        // String fileName = entry.getKey();
+        // String fileContent = entry.getValue();
 
-        //     System.out.println("File Name: " + fileName + " Length: " + fileContent.length());
+        // System.out.println("File Name: " + fileName + " Length: " +
+        // fileContent.length());
 
-        //     // Apply filters to the content
-        //     Map<String, Integer> filteredWords = applyFilters(fileContent);
-        //     System.out.println("Filtered Words and Frequencies: " + filteredWords);
+        // // Apply filters to the content
+        // Map<String, Integer> filteredWords = applyFilters(fileContent);
+        // System.out.println("Filtered Words and Frequencies: " + filteredWords);
 
-        //     // Extract authors' names from the content
-        //     ArrayList<String> authors = extractAuthors(fileContent);
-        //     System.out.println("Authors: " + authors);
+        // // Extract authors' names from the content
+        // ArrayList<String> authors = extractAuthors(fileContent);
+        // System.out.println("Authors: " + authors);
 
-        //     System.out.println("-----");
+        // System.out.println("-----");
         // }
     }
 
@@ -188,6 +243,44 @@ public class DataProcessor {
         this.extractedAuthors = extractedAuthors;
     }
 
+    private static class FileProcessorTask2 implements Runnable {
+        private final String fileName;
+        private final Map<String, String> dataMap;
+        private final String filePath;
+
+        public FileProcessorTask2(String fileName, Map<String, String> dataMap, String filePath) {
+            this.fileName = fileName;
+            this.dataMap = dataMap;
+            this.filePath = filePath;
+        }
+
+        @Override
+        public void run() {
+            try {
+                // Read file content using BufferedReader
+                BufferedReader fileReader = new BufferedReader(new FileReader(filePath, StandardCharsets.UTF_8));
+                StringBuilder fileContent = new StringBuilder();
+                String line;
+
+                // Read file line by line
+                while ((line = fileReader.readLine()) != null) {
+                    fileContent.append(line).append("\n");
+                }
+
+                // Add file content to the map with the file name as the key
+                synchronized (dataMap) {
+                    dataMap.put(fileName, fileContent.toString());
+                }
+
+                // Close the file reader
+                fileReader.close();
+            } catch (IOException e) {
+                System.err.println("Error reading file: " + fileName);
+                e.printStackTrace();
+            }
+        }
+    }
+
     /**
      * Runnable class that processes file data.
      */
@@ -197,7 +290,8 @@ public class DataProcessor {
         private final ClassLoader classLoader;
         private final String folderPath;
 
-        public FileProcessorTask(String fileName, Map<String, String> dataMap, ClassLoader classLoader, String folderPath) {
+        public FileProcessorTask(String fileName, Map<String, String> dataMap, ClassLoader classLoader,
+                String folderPath) {
             this.fileName = fileName;
             this.dataMap = dataMap;
             this.classLoader = classLoader;
@@ -208,10 +302,12 @@ public class DataProcessor {
         public void run() {
             try {
                 // Get the input stream for the current file
-                InputStream fileStream = classLoader.getResourceAsStream(folderPath + fileName + "/pg" + fileName + ".txt");
+                InputStream fileStream = classLoader
+                        .getResourceAsStream(folderPath + fileName + "/pg" + fileName + ".txt");
                 if (fileStream != null) {
                     // Read file content using BufferedReader
-                    BufferedReader fileReader = new BufferedReader(new InputStreamReader(fileStream, StandardCharsets.UTF_8));
+                    BufferedReader fileReader = new BufferedReader(
+                            new InputStreamReader(fileStream, StandardCharsets.UTF_8));
                     StringBuilder fileContent = new StringBuilder();
                     String line;
 

@@ -2,6 +2,7 @@ package com.gutenberg;
 
 import javax.swing.*;
 import java.awt.*;
+import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
@@ -11,6 +12,7 @@ import com.kennycason.kumo.WordFrequency;
 
 public class WordCloudGui {
     DataProcessor processor;
+    JTabbedPane tabbedPane;
 
     public static void main(String[] args) {
         // Create an instance of WordCloudGui and display the GUI
@@ -27,14 +29,14 @@ public class WordCloudGui {
         frame.setSize(800, 600);
 
         // Create a JTabbedPane for multiple word cloud tabs
-        JTabbedPane tabbedPane = new JTabbedPane();
+        tabbedPane = new JTabbedPane();
 
         // Initialize an executor service with a fixed thread pool size
         ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
 
         // Read data from gutenberg-data folder using DataProcessor
-        this.processor=new DataProcessor();
-        Map<String, String> dataMap = this.processor.readFromGutenbergData();
+        processor = new DataProcessor();
+        Map<String, String> dataMap = processor.readFromGutenbergData();
 
         // Create a concurrent map to hold the word frequencies without duplicates
         ConcurrentMap<String, Integer> wordFrequenciesMap = new ConcurrentHashMap<>();
@@ -46,7 +48,7 @@ public class WordCloudGui {
                 Map<String, Integer> frequencies = DataProcessor.applyFilters(fileContent);
                 
                 // Merge the frequencies into the concurrent map
-                frequencies.forEach((word, frequency) -> 
+                frequencies.forEach((word, frequency) ->
                     wordFrequenciesMap.merge(word, frequency, Integer::sum)
                 );
                 
@@ -68,7 +70,7 @@ public class WordCloudGui {
             .collect(Collectors.toList());
 
         // Create a WordCloudPanel with the word frequencies list
-        WordCloudPanel wordCloudPanel = new WordCloudPanel(wordFrequenciesList,this.processor.getExtractedAuthors());
+        WordCloudPanel wordCloudPanel = new WordCloudPanel(wordFrequenciesList, processor.getExtractedAuthors());
 
         // Add the WordCloudPanel as a tab in the tabbedPane
         tabbedPane.addTab("Word Cloud", wordCloudPanel);
@@ -93,14 +95,91 @@ public class WordCloudGui {
         JMenuItem newMenuItem = new JMenuItem("New");
         newMenuItem.addActionListener(e -> {
             // Handle "New" menu item click
-            // Add functionality for creating a new word cloud, loading new data, etc.
-            System.out.println("New menu item clicked");
+            // Select a directory using JFileChooser
+            String newDir = selectDirectory();
+
+            if (newDir != null) {
+                // Create a new WordCloudPanel and refresh the panel
+                createNewWordCloudPanel(newDir);
+            }
         });
+
         fileMenu.add(newMenuItem);
         menuBar.add(fileMenu);
 
         // Add more menus as needed, such as Options, Help, etc.
 
         return menuBar;
+    }
+
+    // Method to create a new WordCloudPanel based on the specified directory
+    private void createNewWordCloudPanel(String folderPath) {
+        // Read data from the specified folder path using DataProcessor
+        processor = new DataProcessor();
+        Map<String, String> dataMap = processor.readFromGutenbergData(folderPath);
+
+        // Create a concurrent map to hold the word frequencies without duplicates
+        ConcurrentMap<String, Integer> wordFrequenciesMap = new ConcurrentHashMap<>();
+
+        // Submit tasks to process data and calculate word frequencies concurrently
+        List<Callable<Void>> tasks = dataMap.entrySet().stream()
+            .map(entry -> (Callable<Void>) () -> {
+                String fileContent = entry.getValue();
+                Map<String, Integer> frequencies = DataProcessor.applyFilters(fileContent);
+                
+                // Merge the frequencies into the concurrent map
+                frequencies.forEach((word, frequency) ->
+                    wordFrequenciesMap.merge(word, frequency, Integer::sum)
+                );
+                
+                return null;
+            }).collect(Collectors.toList());
+
+        // Submit all tasks to the executor service and wait for completion
+        ExecutorService executorService = Executors.newFixedThreadPool(Runtime.getRuntime().availableProcessors());
+
+        try {
+            executorService.invokeAll(tasks);
+            executorService.shutdown();
+            executorService.awaitTermination(Long.MAX_VALUE, TimeUnit.NANOSECONDS);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        // Convert the map to a list of WordFrequency objects
+        List<WordFrequency> wordFrequenciesList = wordFrequenciesMap.entrySet().stream()
+            .map(entry -> new WordFrequency(entry.getKey(), entry.getValue()))
+            .collect(Collectors.toList());
+
+        // Create a new WordCloudPanel with the word frequencies list and authors
+        WordCloudPanel newWordCloudPanel = new WordCloudPanel(wordFrequenciesList, processor.getExtractedAuthors());
+
+        // Add the new WordCloudPanel as a new tab in the tabbedPane
+        tabbedPane.addTab("Word Cloud", newWordCloudPanel);
+        tabbedPane.setSelectedIndex(tabbedPane.getTabCount() - 1); // Select the new tab
+    }
+
+    // Method to allow the user to select a directory using JFileChooser
+    public String selectDirectory() {
+        // Create a JFileChooser instance
+        JFileChooser fileChooser = new JFileChooser();
+
+        // Configure the file chooser to only allow directory selection
+        fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+
+        // Show the file chooser dialog
+        int result = fileChooser.showOpenDialog(null);
+
+        // Check if the user approved the selection
+        if (result == JFileChooser.APPROVE_OPTION) {
+            // Get the selected file (directory)
+            File selectedDirectory = fileChooser.getSelectedFile();
+
+            // Return the full path of the selected directory
+            return selectedDirectory.getAbsolutePath();
+        }
+
+        // If the user canceled the dialog, return null
+        return null;
     }
 }

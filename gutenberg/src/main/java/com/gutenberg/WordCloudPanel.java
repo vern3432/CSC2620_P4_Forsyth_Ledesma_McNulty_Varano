@@ -81,6 +81,8 @@ public class WordCloudPanel extends JPanel {
         return frequencyMap;
     }
 
+    
+
 
     private JPanel createSidePanel() {
         JPanel sidePanel = new JPanel();
@@ -248,7 +250,10 @@ public class WordCloudPanel extends JPanel {
         System.out.println("Cloud Rendered");
 
     }
+    public void reloadData(String folderPath) {
 
+    }
+    
     @Override
     protected void paintComponent(Graphics g) {
         super.paintComponent(g);
