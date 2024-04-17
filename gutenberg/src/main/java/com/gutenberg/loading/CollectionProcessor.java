@@ -4,9 +4,10 @@ import com.gutenberg.Filters;
 import com.gutenberg.cloud.WordCloudStorage;
 import com.gutenberg.panels.StatusPanel;
 
-import java.io.*;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
