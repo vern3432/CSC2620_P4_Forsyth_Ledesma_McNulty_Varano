@@ -171,6 +171,10 @@ public class WordCloudGui {
         tabbedPane.setSelectedIndex(tabbedPane.getTabCount() - 1); // Select the new tab
     }
 
+    
+    /** 
+     * @return String
+     */
     // Method to allow the user to select a directory using JFileChooser
     public String selectDirectory() {
         // Create a JFileChooser instance

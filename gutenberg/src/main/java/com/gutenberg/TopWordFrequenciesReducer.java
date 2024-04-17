@@ -21,6 +21,12 @@ public class TopWordFrequenciesReducer {
         return reduce(filteredWordFrequencies, DEFAULT_LIMIT);
     }
 
+    
+    /** 
+     * @param filteredWordFrequencies
+     * @param limit
+     * @return List<WordFrequency>
+     */
     public List<WordFrequency> reduce(List<WordFrequency> filteredWordFrequencies, int limit) {
         // If the list has a number of elements less than or equal to the specified limit, return it as is
         if (filteredWordFrequencies.size() <= limit) {

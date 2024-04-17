@@ -40,6 +40,10 @@ public class Book {
         return title;
     }
 
+    
+    /** 
+     * @return String
+     */
     public String getAuthor() {
         return author;
     }
