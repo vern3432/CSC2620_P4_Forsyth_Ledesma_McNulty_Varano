@@ -91,9 +91,7 @@ public class DataProcessor {
         }
 
         return dataMap;
-    }
-
-    
+    }    
     /** 
      * @param directoryPath
      * @return Map<String, String>

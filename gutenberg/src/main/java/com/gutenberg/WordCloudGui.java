@@ -96,7 +96,7 @@ public class WordCloudGui {
 
         // Create a "File" menu with a "New" menu item
         JMenu fileMenu = new JMenu("File");
-        JMenuItem newMenuItem = new JMenuItem("New");
+        JMenuItem newMenuItem = new JMenuItem("Open New Directory");
         newMenuItem.addActionListener(e -> {
             // Handle "New" menu item click
             // Select a directory using JFileChooser
