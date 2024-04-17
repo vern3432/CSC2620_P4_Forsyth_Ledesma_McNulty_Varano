@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
@@ -232,29 +234,72 @@ public class WordCloudPanel extends JPanel {
 
     private void setupWordCloud() {
         // Define the size of the word cloud
-        Dimension dimension = new Dimension(DEFAULT_WIDTH - SIDEBAR_WIDTH+500, DEFAULT_HEIGHT+500);
-
+        Dimension dimension = new Dimension(DEFAULT_WIDTH - SIDEBAR_WIDTH + 500, DEFAULT_HEIGHT + 500);
+    
         // Create a new word cloud object with the specified dimension and collision mode
         wordCloud = new WordCloud(dimension, CollisionMode.PIXEL_PERFECT);
-
+    
         // Set background, font scalar, and color palette
         wordCloud.setBackground(new CircleBackground(400));
         wordCloud.setFontScalar(new LinearFontScalar(10, 40));
         wordCloud.setColorPalette(new ColorPalette(Color.RED, Color.BLUE, Color.GREEN));
-
-        // Build the word cloud using the filtered word frequencies
-        System.out.println("Rendering new Cloud, Please Wait");
-        long startTime = System.currentTimeMillis();
-        wordCloud.build(filteredWordFrequencies);
-        long endTime = System.currentTimeMillis();
-
-        System.out.println("Cloud Built"+":"+"Took:"+(endTime - startTime));
-
-        // Store the generated word cloud image
-        wordCloudImage = wordCloud.getBufferedImage();
-        System.out.println("Cloud Rendered");
-
+    
+        // Create a loading dialog with a spinner
+        JDialog loadingDialog = new JDialog((JFrame) null, "Loading...", true);
+        loadingDialog.setLayout(new BorderLayout());
+        loadingDialog.setSize(300, 100);
+        loadingDialog.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+    
+        JLabel messageLabel = new JLabel("Rendering new Cloud, Please Wait...", SwingConstants.CENTER);
+        loadingDialog.add(messageLabel, BorderLayout.NORTH);
+    
+        JProgressBar progressBar = new JProgressBar();
+        progressBar.setIndeterminate(true);
+        loadingDialog.add(progressBar, BorderLayout.CENTER);
+    
+        // Show the loading dialog on the EDT
+        SwingUtilities.invokeLater(() -> loadingDialog.setVisible(true));
+    
+        // Create an executor to run the build process in a background thread
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+    
+        // Submit the build process to the executor
+        executor.submit(() -> {
+            try {
+                long startTime = System.currentTimeMillis();
+                
+                // Build the word cloud using the filtered word frequencies
+                wordCloud.build(filteredWordFrequencies);
+                
+                // Store the generated word cloud image
+                wordCloudImage = wordCloud.getBufferedImage();
+    
+                // Calculate the duration of the word cloud build process
+                long endTime = System.currentTimeMillis();
+                System.out.println("Cloud Built: Took: " + (endTime - startTime) + " ms");
+                System.out.println("Cloud Rendered");
+    
+                // Generate the filter key for caching
+                String filterKey = generateFilterKey();
+                
+                // Add the rendered word cloud image to the cache
+                wordCloudCache.put(filterKey, wordCloudImage);
+            } catch (Exception e) {
+                System.err.println("Error during word cloud setup: " + e.getMessage());
+                e.printStackTrace();
+            } finally {
+                // Close the loading dialog on the EDT
+                SwingUtilities.invokeLater(() -> loadingDialog.dispose());
+    
+                // Repaint the panel to reflect the updated word cloud on the EDT
+                SwingUtilities.invokeLater(() -> repaint());
+    
+                // Shut down the executor
+                executor.shutdown();
+            }
+        });
     }
+    
     public void reloadData(String folderPath) {
 
     }
