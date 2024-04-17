@@ -242,6 +242,8 @@ public class WordCloudPanel extends JPanel {
             if (!isAnythingSelected()) {
                 JOptionPane.showMessageDialog(this, "You most select at least one of the top six options", "Error", JOptionPane.ERROR_MESSAGE);
                 cbStartsWithFilter.setSelected(false);
+            } else if (cbStartsWithFilter.isSelected()) {
+
             }
         });
         return result;
