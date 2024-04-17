@@ -1,5 +1,4 @@
 package com.gutenberg;
-
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -9,30 +8,31 @@ import java.util.concurrent.RecursiveTask;
 import com.kennycason.kumo.WordFrequency;
 
 public class TopWordFrequenciesReducer {
-    private static final int MAX_THREADS = Runtime.getRuntime().availableProcessors();
+    private static final int MAX_THREADS = Runtime.getRuntime().availableProcessors()-1;
+    private static final int DEFAULT_LIMIT = 100;
 
-    
-    /** 
-     * @param filteredWordFrequencies
-     * @return List<WordFrequency>
-     */
     public List<WordFrequency> reduce(List<WordFrequency> filteredWordFrequencies) {
-        // If the list has 100 or fewer elements, return it as is
-        if (filteredWordFrequencies.size() <= 100) {
+        // Use the default limit if no limit is provided
+        return reduce(filteredWordFrequencies, DEFAULT_LIMIT);
+    }
+
+    public List<WordFrequency> reduce(List<WordFrequency> filteredWordFrequencies, int limit) {
+        // If the list has a number of elements less than or equal to the specified limit, return it as is
+        if (filteredWordFrequencies.size() <= limit) {
             return new ArrayList<>(filteredWordFrequencies);
         }
 
         // Create a ForkJoinPool with the maximum number of threads
         ForkJoinPool pool = new ForkJoinPool(MAX_THREADS);
 
-        // Sort the list using a multi-threaded merge sort and retrieve the top 100 results
+        // Sort the list using a multi-threaded merge sort and retrieve the top limit results
         List<WordFrequency> sortedList = pool.invoke(new MergeSortTask(filteredWordFrequencies));
-        
+
         // Close the pool
         pool.shutdown();
 
-        // Return the top 100 results
-        return sortedList.subList(0, 100);
+        // Return the top limit results
+        return sortedList.subList(0, limit);
     }
 
     // RecursiveTask for the multi-threaded merge sort

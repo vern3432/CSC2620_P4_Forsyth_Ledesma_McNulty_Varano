@@ -50,6 +50,10 @@ public class WordCloudPanel extends JPanel {
     private boolean useAughFilter = false;
     private boolean useAuthorFilter = false;
 
+
+    private int wordLimit = 100; // Default limit of top 100 word frequencies
+
+
     // Cache to store filtered and rendered word cloud images
     private Map<String, BufferedImage> wordCloudCache = new HashMap<>();
     ArrayList<String> authors=new ArrayList<>();
@@ -99,7 +103,7 @@ public class WordCloudPanel extends JPanel {
         JPanel sidePanel = new JPanel();
         sidePanel.setPreferredSize(new Dimension(SIDEBAR_WIDTH, DEFAULT_HEIGHT));
         sidePanel.setLayout(new BoxLayout(sidePanel, BoxLayout.Y_AXIS));
-
+    
         // Initialize checkboxes for filtering options
         cbIngFilter = new JCheckBox("Words ending in 'ing'");
         cbOughFilter = new JCheckBox("Words containing 'ough'");
@@ -107,7 +111,7 @@ public class WordCloudPanel extends JPanel {
         cbKnFilter = new JCheckBox("Words starting with 'kn'");
         cbAughFilter = new JCheckBox("Words containing 'augh'");
         cbAuthorFilter = new JCheckBox("Author's names");
-
+    
         // Add action listeners to the checkboxes
         addFilterActionListener(cbIngFilter, () -> useIngFilter = cbIngFilter.isSelected());
         addFilterActionListener(cbOughFilter, () -> useOughFilter = cbOughFilter.isSelected());
@@ -115,7 +119,7 @@ public class WordCloudPanel extends JPanel {
         addFilterActionListener(cbKnFilter, () -> useKnFilter = cbKnFilter.isSelected());
         addFilterActionListener(cbAughFilter, () -> useAughFilter = cbAughFilter.isSelected());
         addFilterActionListener(cbAuthorFilter, () -> useAuthorFilter = cbAuthorFilter.isSelected());
-
+    
         // Add checkboxes to the side panel
         sidePanel.add(cbIngFilter);
         sidePanel.add(cbOughFilter);
@@ -123,9 +127,61 @@ public class WordCloudPanel extends JPanel {
         sidePanel.add(cbKnFilter);
         sidePanel.add(cbAughFilter);
         sidePanel.add(cbAuthorFilter);
-
+    
+        // Add a button to change the limit value
+        JButton changeLimitButton = new JButton("Change Limit (" + wordLimit + ")");
+        sidePanel.add(changeLimitButton);
+    
+        // Add action listener for the button
+        changeLimitButton.addActionListener(e -> {
+            // Open a popup dialog to change the limit value
+            String newLimitStr = JOptionPane.showInputDialog(
+                sidePanel,
+                "Enter new limit value:",
+                "Change Limit",
+                JOptionPane.PLAIN_MESSAGE
+            );
+            if (newLimitStr != null && !newLimitStr.isEmpty()) {
+                try {
+                    int newLimit = Integer.parseInt(newLimitStr);
+                    if (newLimit > 0) {
+                        wordLimit = newLimit;
+                        changeLimitButton.setText("Change Limit (" + wordLimit + ")");
+                        clearCacheAndRerender();
+                    } else {
+                        JOptionPane.showMessageDialog(
+                            sidePanel,
+                            "Please enter a positive integer value.",
+                            "Invalid Input",
+                            JOptionPane.ERROR_MESSAGE
+                        );
+                    }
+                } catch (NumberFormatException ex) {
+                    JOptionPane.showMessageDialog(
+                        sidePanel,
+                        "Please enter a valid integer value.",
+                        "Invalid Input",
+                        JOptionPane.ERROR_MESSAGE
+                    );
+                }
+            }
+        });
+    
         return sidePanel;
     }
+
+    private void clearCacheAndRerender() {
+        // Clear the cache
+        wordCloudCache.clear();
+        
+        // Update filters and generate a new word cloud
+        updateFiltersAndWordCloud();
+    }
+    
+
+    
+
+    
 
     private void addFilterActionListener(JCheckBox checkBox, Runnable action) {
         checkBox.addActionListener(e -> {
@@ -273,7 +329,7 @@ public class WordCloudPanel extends JPanel {
                 long startTime = System.currentTimeMillis();
                 
                 // Build the word cloud using the filtered word frequencies
-                List<WordFrequency> top100Frequencies = new TopWordFrequenciesReducer().reduce(filteredWordFrequencies);
+                List<WordFrequency> top100Frequencies = new TopWordFrequenciesReducer().reduce(filteredWordFrequencies,this.wordLimit);
 
                 wordCloud.build(top100Frequencies);
                 
