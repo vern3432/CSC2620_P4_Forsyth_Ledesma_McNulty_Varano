@@ -48,6 +48,10 @@ public class Book {
         return author;
     }
 
+    
+    /** 
+     * @return String
+     */
     public String getReleaseDate() {
         return releaseDate;
     }

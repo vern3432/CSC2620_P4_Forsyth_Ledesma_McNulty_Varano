@@ -470,6 +470,11 @@ private void applyFilters() {
 }
 
 
+  
+  /** 
+   * @param word
+   * @return boolean
+   */
   private boolean isAuthorName(String word) {
     // Determine if a word is an author's name based on whether the first letter is uppercase
     return Character.isUpperCase(word.charAt(0));
