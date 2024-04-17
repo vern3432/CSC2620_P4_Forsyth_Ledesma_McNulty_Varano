@@ -173,9 +173,6 @@ public class WordCloudPanel extends JPanel {
         wordCloud.setFontScalar(new SqrtFontScalar(10, 40));
 
         // Build the word cloud using the filtered word frequencies
-        System.out.println("****************************** ");
-        System.out.println(this.filteredWordFrequencies.size());
-        System.out.println("****************************** ");
         wordCloud.build(this.filteredWordFrequencies);
 
         // Store the generated word cloud image
