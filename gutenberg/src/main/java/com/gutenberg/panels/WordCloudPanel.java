@@ -142,17 +142,17 @@ public class WordCloudPanel extends JPanel {
         // Apply the selected filters to the word frequencies list
         wordCloudStorage.getWords().parallelStream().forEach(wordFrequency -> {
             var word = wordFrequency.getWord();
-            if (cbIngFilter.isSelected() && !ingPattern.matcher(word).matches()) {
+            if (cbIngFilter.isSelected() && ingPattern.matcher(word).matches()) {
                 filteredWordFrequencies.add(wordFrequency);
-            } else if (cbOughFilter.isSelected() && !oughPattern.matcher(word).matches()) {
+            } else if (cbOughFilter.isSelected() && oughPattern.matcher(word).matches()) {
                 filteredWordFrequencies.add(wordFrequency);
-            } else if (cbIsmFilter.isSelected() && !ismPattern.matcher(word).matches()) {
+            } else if (cbIsmFilter.isSelected() && ismPattern.matcher(word).matches()) {
                 filteredWordFrequencies.add(wordFrequency);
-            } else if (cbKnFilter.isSelected() && !knPattern.matcher(word).matches()) {
+            } else if (cbKnFilter.isSelected() && knPattern.matcher(word).matches()) {
                 filteredWordFrequencies.add(wordFrequency);
-            } else if (cbAughFilter.isSelected() && !aughPattern.matcher(word).matches()) {
+            } else if (cbAughFilter.isSelected() && aughPattern.matcher(word).matches()) {
                 filteredWordFrequencies.add(wordFrequency);
-            } else if (cbAuthorFilter.isSelected() && !isAuthorName(word)) {
+            } else if (cbAuthorFilter.isSelected() && isAuthorName(word)) {
                 filteredWordFrequencies.add(wordFrequency);
             }
         });
@@ -173,7 +173,9 @@ public class WordCloudPanel extends JPanel {
         wordCloud.setFontScalar(new SqrtFontScalar(10, 40));
 
         // Build the word cloud using the filtered word frequencies
-        System.out.println("********* " + this.filteredWordFrequencies.size());
+        System.out.println("****************************** ");
+        System.out.println(this.filteredWordFrequencies.size());
+        System.out.println("****************************** ");
         wordCloud.build(this.filteredWordFrequencies);
 
         // Store the generated word cloud image

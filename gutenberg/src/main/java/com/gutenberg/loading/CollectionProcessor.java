@@ -1,5 +1,6 @@
 package com.gutenberg.loading;
 
+import com.gutenberg.Filters;
 import com.gutenberg.cloud.WordCloudStorage;
 import com.gutenberg.panels.StatusPanel;
 
@@ -18,13 +19,6 @@ public class CollectionProcessor {
     String folderPath = "gutenberg-data/";
     private WordCloudStorage wordCloudStorage;
     private StatusPanel statusPanel;
-
-    // Define the regex patterns for the filters
-    private static final Pattern patternIng = Pattern.compile("\\b\\w+ing\\b");
-    private static final Pattern patternOugh = Pattern.compile("\\b\\w+ough\\b");
-    private static final Pattern patternIsm = Pattern.compile("\\b\\w+ism\\b");
-    private static final Pattern patternKn = Pattern.compile("\\bkn\\w+");
-    private static final Pattern patternAugh = Pattern.compile("\\b\\w+augh\\b");
 
     // Define a pattern to split content into words
     private static final Pattern wordPattern = Pattern.compile("\\b\\w+\\b");
@@ -80,11 +74,11 @@ public class CollectionProcessor {
                         continue;
                     }
                     // Check each filter pattern and add to frequency map
-                    if (patternIng.matcher(word).find() ||
-                            patternOugh.matcher(word).find() ||
-                            patternIsm.matcher(word).find() ||
-                            patternKn.matcher(word).find() ||
-                            patternAugh.matcher(word).find()) {
+                    if (Filters.ingPattern.matcher(word).find() ||
+                            Filters.oughPattern.matcher(word).find() ||
+                            Filters.ismPattern.matcher(word).find() ||
+                            Filters.knPattern.matcher(word).find() ||
+                            Filters.aughPattern.matcher(word).find()) {
                         // Increment the word frequency
                         wordFrequencyMap.merge(word, wordFrequencyMap.getOrDefault(word, 1), Integer::sum);
                     }
