@@ -30,26 +30,10 @@ public class StatusPanel extends JPanel {
     }
 
     public void startAnimation() {
-        timer = new Timer(500, new ActionListener() {
-            int progress = 0;
-
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                progress += 1; // Increase progress value
-                if (progress > 100) {
-                    progress = 0; // Reset progress when reaching maximum
-                }
-                progressBar.setValue(progress); // Update progress bar value
-            }
-        });
-        timer.start();
+        this.progressBar.setIndeterminate(true);
     }
     public void stopAnimation() {
-        if (timer != null && timer.isRunning()) {
-            timer.stop();
-            progressBar.setValue(100);
-            statusLabel.setText("All files has been processed successfully");
-        }
+        this.progressBar.setIndeterminate(false);
     }
 
     public void setStatus(String status) {
