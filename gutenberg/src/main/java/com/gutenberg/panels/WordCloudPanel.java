@@ -8,12 +8,11 @@ import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Pattern;
 
 import javax.swing.*;
 
 import com.gutenberg.cloud.WordCloudStorage;
-import com.gutenberg.dialogs.ProgressDialog;
 import com.kennycason.kumo.WordCloud;
 import com.kennycason.kumo.WordFrequency;
 import com.kennycason.kumo.bg.CircleBackground;
@@ -44,6 +43,14 @@ public class WordCloudPanel extends JPanel {
     private JCheckBox cbStartsWithFilter;
     private JCheckBox cbExcludeWordFilter;
     private JCheckBox cbPreFilter;
+
+
+    // Extra filters values
+    private String startsWithWord = null;
+    private String excludeWords = null;
+
+    // Extra Regular Expressions
+    private Pattern startWithPattern = null;
 
 
     public WordCloudPanel(WordCloudStorage wordCloudStorage, JFrame parent) {
@@ -81,7 +88,7 @@ public class WordCloudPanel extends JPanel {
 
         //New
         cbStartsWithFilter = setStartWithFilter();
-        cbExcludeWordFilter = new JCheckBox("Filter out selected word(s)");
+        cbExcludeWordFilter = setExcludeWordFilter();
         cbPreFilter = new JCheckBox("Words starting with 'pre'");
 
         // Add action listeners to the checkboxes
@@ -91,6 +98,7 @@ public class WordCloudPanel extends JPanel {
         addFilterActionListener(cbKnFilter);
         addFilterActionListener(cbAughFilter);
         addFilterActionListener(cbAuthorFilter);
+        addFilterActionListener(cbPreFilter);
 
         // Add checkboxes to the side panel
         sidePanel.add(cbIngFilter);
@@ -100,6 +108,8 @@ public class WordCloudPanel extends JPanel {
         sidePanel.add(cbAughFilter);
         sidePanel.add(cbAuthorFilter);
         sidePanel.add(cbStartsWithFilter);
+        sidePanel.add(cbExcludeWordFilter);
+        sidePanel.add(cbPreFilter);
 
         return sidePanel;
     }
@@ -159,10 +169,28 @@ public class WordCloudPanel extends JPanel {
         if (cbAuthorFilter.isSelected()) {
             words.addAll(wordCloudStorage.getAuthors());
         }
+
+        if (cbStartsWithFilter.isSelected()) {
+            startWithPattern = Pattern.compile("^" + startsWithWord.toLowerCase() + ".*");
+        }
+
+        List<String> excludeWordsList =  new ArrayList<>();
+        if (cbExcludeWordFilter.isSelected()) {
+            var tokens = excludeWords.split(",");
+            for (String value: tokens) {
+                excludeWordsList.add(value.toLowerCase().trim());
+            }
+        }
         // Apply the selected filters to the word frequencies list
         words.parallelStream().forEach(wordFrequency -> {
             var word = wordFrequency.getWord();
-            if (cbIngFilter.isSelected() && ingPattern.matcher(word).matches()) {
+            if (cbExcludeWordFilter.isSelected() && excludeWordsList.contains(word)) {
+                // Nothing to do
+            } else if (cbPreFilter.isSelected() && prePattern.matcher(word).matches()) {
+                filteredWordFrequencies.add(wordFrequency);
+            } else if (cbStartsWithFilter.isSelected() && startWithPattern.matcher(word).matches()) {
+                filteredWordFrequencies.add(wordFrequency);
+            } else if (cbIngFilter.isSelected() && ingPattern.matcher(word).matches()) {
                 filteredWordFrequencies.add(wordFrequency);
             } else if (cbOughFilter.isSelected() && oughPattern.matcher(word).matches()) {
                 filteredWordFrequencies.add(wordFrequency);
@@ -176,6 +204,7 @@ public class WordCloudPanel extends JPanel {
                 filteredWordFrequencies.add(wordFrequency);
             }
         });
+
     }
 
     private boolean isAuthorName(String word) {
@@ -233,18 +262,52 @@ public class WordCloudPanel extends JPanel {
     private boolean isAnythingSelected() {
         return cbIngFilter.isSelected() || cbOughFilter.isSelected() ||
                 cbIsmFilter.isSelected() || cbKnFilter.isSelected() ||
-                cbAughFilter.isSelected() || cbAuthorFilter.isSelected();
+                cbAughFilter.isSelected();
     }
 
     private JCheckBox setStartWithFilter() {
         var result = new JCheckBox("Filter words that start with");
         result.addActionListener(e -> {
-            if (!isAnythingSelected()) {
-                JOptionPane.showMessageDialog(this, "You most select at least one of the top six options", "Error", JOptionPane.ERROR_MESSAGE);
-                cbStartsWithFilter.setSelected(false);
-            } else if (cbStartsWithFilter.isSelected()) {
-
+            if (cbStartsWithFilter.isSelected()) {
+                startsWithWord = JOptionPane.showInputDialog(
+                        this,
+                        "Enter the word you want to filter by:",
+                        "Starting Word Filter",
+                        JOptionPane.PLAIN_MESSAGE
+                );
+                if (startsWithWord == null || startsWithWord.isEmpty()) {
+                    cbStartsWithFilter.setSelected(false);
+                }
+            } else {
+                startWithPattern = null;
             }
+            updateFiltersAndWordCloud();
+        });
+        return result;
+    }
+
+    private JCheckBox setExcludeWordFilter() {
+        var result = new JCheckBox("Exclude selected word(s)");
+        result.addActionListener(e -> {
+            if (cbExcludeWordFilter.isSelected()) {
+                if (!isAnythingSelected()) {
+                    JOptionPane.showMessageDialog(this, "You must select at least one of the other options", "Error", JOptionPane.ERROR_MESSAGE);
+                    cbExcludeWordFilter.setSelected(false);
+                    return;
+                }
+                excludeWords = JOptionPane.showInputDialog(
+                        this,
+                        "Enter the words separate by comma:",
+                        "Excluded Selected Words",
+                        JOptionPane.PLAIN_MESSAGE
+                );
+                if (excludeWords == null || excludeWords.isEmpty()) {
+                    cbExcludeWordFilter.setSelected(false);
+                }
+            } else {
+                excludeWords = null;
+            }
+            updateFiltersAndWordCloud();
         });
         return result;
     }

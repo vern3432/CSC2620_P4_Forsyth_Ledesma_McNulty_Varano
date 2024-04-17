@@ -32,6 +32,11 @@ public class RegexFilters {
     public static final Pattern knPattern = Pattern.compile("^kn.*");
 
     /**
+     * Regular expression pattern for words starting with "pre".
+     */
+    public static final Pattern prePattern = Pattern.compile("^pre.*");
+
+    /**
      * Regular expression pattern for words containing "augh" anywhere.
      */
     public static final Pattern aughPattern = Pattern.compile(".*augh.*");
