@@ -133,11 +133,11 @@ public class WordCloudPanel extends JPanel {
                 System.out.println((System.currentTimeMillis() - start) + "ms");
 
                 // Repaint the panel to reflect the updated word cloud
-                repaint();
             }).start();
         } finally {
             // Hide the dialog after processing is done
             SwingUtilities.invokeLater(dlg::dispose);
+            SwingUtilities.invokeLater(this::repaint);
         }
 
     }
@@ -175,10 +175,10 @@ public class WordCloudPanel extends JPanel {
             startWithPattern = Pattern.compile("^" + startsWithWord.toLowerCase() + ".*");
         }
 
-        List<String> excludeWordsList =  new ArrayList<>();
+        List<String> excludeWordsList = new ArrayList<>();
         if (cbExcludeWordFilter.isSelected()) {
             var tokens = excludeWords.split(",");
-            for (String value: tokens) {
+            for (String value : tokens) {
                 excludeWordsList.add(value.toLowerCase().trim());
             }
         }
