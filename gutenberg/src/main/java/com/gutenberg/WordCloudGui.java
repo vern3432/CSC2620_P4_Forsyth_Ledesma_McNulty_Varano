@@ -33,7 +33,7 @@ public class WordCloudGui {
         collectionProcessor.process();
 
         // Create a WordCloudPanel with the word frequencies list
-        WordCloudPanel wordCloudPanel = new WordCloudPanel(wordCloud);
+        WordCloudPanel wordCloudPanel = new WordCloudPanel(wordCloud, frame);
 
         // Add the WordCloudPanel as a tab in the tabbedPane
         tabbedPane.addTab("Word Cloud", wordCloudPanel);

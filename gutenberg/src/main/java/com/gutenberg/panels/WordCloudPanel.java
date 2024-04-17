@@ -7,30 +7,28 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.regex.Pattern;
+import java.util.concurrent.atomic.AtomicReference;
 
 import javax.swing.*;
 
 import com.gutenberg.cloud.WordCloudStorage;
+import com.gutenberg.dialogs.ProgressDialog;
 import com.kennycason.kumo.WordCloud;
 import com.kennycason.kumo.WordFrequency;
 import com.kennycason.kumo.bg.CircleBackground;
 import com.kennycason.kumo.CollisionMode;
-import com.kennycason.kumo.font.scale.LinearFontScalar;
 import com.kennycason.kumo.font.scale.SqrtFontScalar;
-import com.kennycason.kumo.palette.ColorPalette;
 import com.kennycason.kumo.palette.LinearGradientColorPalette;
 
-import static com.gutenberg.Filters.*;
+import static com.gutenberg.RegexFilters.*;
 
 public class WordCloudPanel extends JPanel {
     private WordCloud wordCloud;
     private BufferedImage wordCloudImage;
     private WordCloudStorage wordCloudStorage;
     private List<WordFrequency> filteredWordFrequencies;
+    private final JFrame parent;
 
     private static final int DEFAULT_WIDTH = 600;
     private static final int DEFAULT_HEIGHT = 600;
@@ -45,7 +43,8 @@ public class WordCloudPanel extends JPanel {
     private JCheckBox cbAuthorFilter;
 
 
-    public WordCloudPanel(WordCloudStorage wordCloudStorage) {
+    public WordCloudPanel(WordCloudStorage wordCloudStorage, JFrame parent) {
+        this.parent = parent;
         this.wordCloudStorage = wordCloudStorage;
         this.filteredWordFrequencies = new ArrayList<>();
 
@@ -103,16 +102,24 @@ public class WordCloudPanel extends JPanel {
     }
 
     private void updateFiltersAndWordCloud() {
-        applyFilters();
+        // show the dialog
+        try {
+            applyFilters();
 
-        // Generate a unique key for the current filter state
-        String filterKey = generateFilterKey();
+            // Generate a unique key for the current filter state
+            String filterKey = generateFilterKey();
 
-        // Build and cache a new word cloud image for the current filter state
-        setupWordCloud();
+            // Build and cache a new word cloud image for the current filter state
+            var start = System.currentTimeMillis();
+            setupWordCloud();
+            System.out.println((System.currentTimeMillis() - start) + "ms");
 
-        // Repaint the panel to reflect the updated word cloud
-        repaint();
+            // Repaint the panel to reflect the updated word cloud
+            repaint();
+        } finally {
+            // Hide the dialog after processing is done
+        }
+
     }
 
     private void setupInitialWordCloud() {
@@ -139,8 +146,12 @@ public class WordCloudPanel extends JPanel {
         // Clear the filtered word frequencies list
         filteredWordFrequencies.clear();
 
+        var words = wordCloudStorage.getWords();
+        if (cbAuthorFilter.isSelected()) {
+            words.addAll(wordCloudStorage.getAuthors());
+        }
         // Apply the selected filters to the word frequencies list
-        wordCloudStorage.getWords().parallelStream().forEach(wordFrequency -> {
+        words.parallelStream().forEach(wordFrequency -> {
             var word = wordFrequency.getWord();
             if (cbIngFilter.isSelected() && ingPattern.matcher(word).matches()) {
                 filteredWordFrequencies.add(wordFrequency);

@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
  *
  * @author Maddie
  */
-public class Filters {
+public class RegexFilters {
 
     /**
      * Regular expression pattern for words ending with "ing".
@@ -37,9 +37,15 @@ public class Filters {
     public static final Pattern aughPattern = Pattern.compile(".*augh.*");
 
     /**
+     * Define the regex pattern for extracting authors' names
+     */
+    public static final Pattern authorPattern = Pattern.compile("(?i)Author:\\s*([^\\n]+)");
+
+
+    /**
      * Private constructor to prevent instantiation of this class.
      * All fields are static, so instances are not needed.
      */
-    private Filters() {
+    private RegexFilters() {
     }
 }
