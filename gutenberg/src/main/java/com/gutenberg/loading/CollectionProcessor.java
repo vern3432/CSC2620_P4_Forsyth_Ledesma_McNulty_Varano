@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -22,7 +23,7 @@ public class CollectionProcessor {
     private WordCloudStorage wordCloudStorage;
     private StatusPanel statusPanel;
 
-    private int fileCount = 0;
+    private AtomicInteger fileCount = new AtomicInteger(0);
 
     // Define a pattern to split content into words
     private static final Pattern wordPattern = Pattern.compile("\\b\\w+\\b");
@@ -101,7 +102,7 @@ public class CollectionProcessor {
             }
             this.wordCloudStorage.addWords(wordFrequencyMap);
             this.wordCloudStorage.addAuthors(authorFrequencyMap);
-            fileCount++;
+            fileCount.incrementAndGet();
             statusPanel.setStatus("Scanning files (" + fileCount + ") ...");
         } catch (IOException e) {
             throw new RuntimeException(e);

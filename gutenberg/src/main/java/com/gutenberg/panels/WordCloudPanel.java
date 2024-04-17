@@ -1,10 +1,6 @@
 package com.gutenberg.panels;
 
-import java.awt.BorderLayout;
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
@@ -122,21 +118,26 @@ public class WordCloudPanel extends JPanel {
 
     private void updateFiltersAndWordCloud() {
         // show the dialog
+        var dlg = createProcessDialog();
+        SwingUtilities.invokeLater(() -> dlg.setVisible(true));
         try {
-            applyFilters();
+            new Thread(() -> {
+                applyFilters();
 
-            // Generate a unique key for the current filter state
-            String filterKey = generateFilterKey();
+                // Generate a unique key for the current filter state
+                String filterKey = generateFilterKey();
 
-            // Build and cache a new word cloud image for the current filter state
-            var start = System.currentTimeMillis();
-            setupWordCloud();
-            System.out.println((System.currentTimeMillis() - start) + "ms");
+                // Build and cache a new word cloud image for the current filter state
+                var start = System.currentTimeMillis();
+                setupWordCloud();
+                System.out.println((System.currentTimeMillis() - start) + "ms");
 
-            // Repaint the panel to reflect the updated word cloud
-            repaint();
+                // Repaint the panel to reflect the updated word cloud
+                repaint();
+            }).start();
         } finally {
             // Hide the dialog after processing is done
+            SwingUtilities.invokeLater(dlg::dispose);
         }
 
     }
@@ -311,6 +312,17 @@ public class WordCloudPanel extends JPanel {
         });
         return result;
     }
+
+    private JDialog createProcessDialog() {
+        var resut = new JDialog(parent, "Processing");
+        resut.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE); // Disable close button
+        resut.setSize(200, 100);
+        resut.setLocationRelativeTo(parent);
+
+        JLabel messageLabel = new JLabel("Rendering...");
+        messageLabel.setHorizontalAlignment(SwingConstants.CENTER); // Center align the message
+        resut.add(messageLabel, BorderLayout.CENTER); // Add label to the center
+        return resut;
+    }
 }
 
-// JOptionPane.showMessageDialog(this, "Login successful!");
