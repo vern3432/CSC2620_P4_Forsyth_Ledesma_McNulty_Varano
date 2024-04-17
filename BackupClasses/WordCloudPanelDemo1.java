@@ -11,6 +11,10 @@ import com.kennycason.kumo.WordFrequency;
 
 public class WordCloudPanelDemo1 {
 
+    
+    /** 
+     * @param args
+     */
     public static void main(String[] args) {
         // Read data from gutenberg-data folder using DataProcessor
         Map<String, String> dataMap = DataProcessor.readFromGutenbergData();

@@ -3,6 +3,10 @@ package com.gutenberg;
 public class Book {
     private int pageNumber;
     private String title;
+    
+    /** 
+     * @return int
+     */
     public int getPageNumber() {
         return pageNumber;
     }

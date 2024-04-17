@@ -13,6 +13,10 @@ public class ProgressDialog extends JDialog {
         pack(); // Adjust size based on components
     }
 
+    
+    /** 
+     * @param value
+     */
     public void setProgress(int value) {
         progressBar.setValue(value);
     }

@@ -71,6 +71,11 @@ public class WordCloudPanel extends JPanel {
         setupInitialWordCloud();
         // add(new JLabel(new ImageIcon(wordCloudImage)), BorderLayout.CENTER);
     }
+    
+    /** 
+     * @param authors
+     * @return Map<String, Integer>
+     */
     private Map<String, Integer> generateAuthorFrequencyMap(ArrayList<String> authors) {
         Map<String, Integer> frequencyMap = new HashMap<>();
         

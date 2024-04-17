@@ -24,6 +24,11 @@ import java.util.Random;
 
 public class Demo {
 
+    
+    /** 
+     * @param args
+     * @throws IOException
+     */
     public static void main(String[] args) throws IOException {
 
         final FrequencyAnalyzer frequencyAnalyzer = new FrequencyAnalyzer();

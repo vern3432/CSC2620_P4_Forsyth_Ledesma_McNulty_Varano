@@ -14,6 +14,10 @@ public class WordCloudGui {
     DataProcessor processor;
     JTabbedPane tabbedPane;
 
+    
+    /** 
+     * @param args
+     */
     public static void main(String[] args) {
         // Create an instance of WordCloudGui and display the GUI
         SwingUtilities.invokeLater(() -> {

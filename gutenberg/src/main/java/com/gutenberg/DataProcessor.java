@@ -93,6 +93,11 @@ public class DataProcessor {
         return dataMap;
     }
 
+    
+    /** 
+     * @param directoryPath
+     * @return Map<String, String>
+     */
     public Map<String, String> readFromGutenbergData(String directoryPath) {
         System.out.println("Start Fresh From:"+directoryPath);
         // Create a map to store file data

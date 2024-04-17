@@ -4,6 +4,10 @@ import javax.swing.*;
 
 public class WordCloudPanelDemo {
 
+    
+    /** 
+     * @param args
+     */
     public static void main(String[] args) {
         // Create a JFrame to hold the WordCloudPanel
         JFrame frame = new JFrame("Word Cloud Demo");
