@@ -2,6 +2,8 @@ package com.gutenberg;
 
 import javax.swing.*;
 import java.awt.*;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 import java.io.File;
 import java.util.List;
 import java.util.Map;
@@ -92,15 +94,21 @@ public class WordCloudGui {
 
     
     /** 
+     * Method to create a JMenuBar with menus and menu items
+     * 
      * @return JMenuBar
      */
-    // Method to create a JMenuBar with menus and menu items
     private JMenuBar createMenuBar() {
         JMenuBar menuBar = new JMenuBar();
 
         // Create a "File" menu with a "New" menu item
         JMenu fileMenu = new JMenu("File");
         JMenuItem newMenuItem = new JMenuItem("Open New Directory");
+
+        // Set accelerator key for new directory (Ctrl + o)
+        int shortcutKey = InputEvent.CTRL_DOWN_MASK; // Ctrl key fo shortcut
+        newMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, shortcutKey));
+        
         newMenuItem.addActionListener(e -> {
             // Handle "New" menu item click
             // Select a directory using JFileChooser
