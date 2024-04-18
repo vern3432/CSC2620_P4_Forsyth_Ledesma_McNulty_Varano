@@ -207,9 +207,16 @@ public class WordCloudPanel extends JPanel {
             useExcludeWordFilter = false;
             cbExcludeWordFilter.setSelected(false);
           }
+        } else {
+          useExcludeWordFilter = false;
+          this.excludeWordsList=new ArrayList<>();
+
+        
         }
       }
     );
+    
+    
     addFilterActionListener(
       cbPreFilter,
       () -> usePreFilter = cbPreFilter.isSelected()
@@ -312,9 +319,6 @@ private void enableOtherFilters() {
   cbStartsWithFilter.setEnabled(true);
   cbExcludeWordFilter.setEnabled(true);
   cbPreFilter.setEnabled(true);
-
-
-
   useIngFilter = false;
   useOughFilter = false;
   useIsmFilter = false;
@@ -327,7 +331,8 @@ private void enableOtherFilters() {
   usePreFilter = false;
 
 
-
+  
+  setupWordCloud();
   // You can add more checkboxes here as needed
 }
 

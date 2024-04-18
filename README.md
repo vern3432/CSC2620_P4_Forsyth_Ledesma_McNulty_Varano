@@ -5,7 +5,7 @@ This repository contains the WordCloudPanel Java class, which provides functiona
 
 ## Features
 - Small Sample is initially loaded, Use File Menu "Open New Directory" to open new directory, which will proccess and open new word cloud from data
-- You may either place new Guten Berg data inside the resources folder before the program is run, or do ctrl+o to load up a new directory 
+- You may either place new Guten Berg data inside the resources folder before the program is run, or do ctrl+o to load up a new directory. Resources may be easier
 
 - Generates a word cloud based on a list of word frequencies.
 - Provides filter options to customize the words displayed in the word cloud:
