@@ -19,6 +19,11 @@ import java.util.regex.Pattern;
 
 import static com.gutenberg.RegexFilters.authorPattern;
 
+/**
+ * The CollectionProcessor class is responsible for processing a collection of files,
+ * extracting words and author names from the files, and updating the WordCloudStorage
+ * and StatusPanel accordingly.
+ */
 public class CollectionProcessor {
     private WordCloudStorage wordCloudStorage;
     private StatusPanel statusPanel;
@@ -28,11 +33,22 @@ public class CollectionProcessor {
     // Define a pattern to split content into words
     private static final Pattern wordPattern = Pattern.compile("\\b\\w+\\b");
 
+    /**
+     * Constructs a CollectionProcessor with the given WordCloudStorage and StatusPanel.
+     *
+     * @param wordCloudStorage The WordCloudStorage to store word and author frequency data.
+     * @param statusPanel      The StatusPanel to display processing status.
+     */
     public CollectionProcessor(WordCloudStorage wordCloudStorage, StatusPanel statusPanel) {
         this.wordCloudStorage = wordCloudStorage;
         this.statusPanel = statusPanel;
     }
 
+    /**
+     * Processes the files in the specified folder.
+     *
+     * @param folderPath The path to the folder containing the files to be processed.
+     */
     public void process(File folderPath) {
         fileCount.set(0);
         wordCloudStorage.init();
@@ -59,6 +75,15 @@ public class CollectionProcessor {
         backgroundThread.start();
     }
 
+    /**
+     * Recursively processes the files in the specified folder.
+     *
+     * @param folderPath The path to the folder containing the files to be processed.
+     * @param executor   The Executor to execute processing tasks.
+     * @return           A CompletableFuture representing all processing tasks.
+     * @throws IOException       If an I/O error occurs.
+     * @throws URISyntaxException If the URI of the file path is invalid.
+     */
     private CompletableFuture<Void> processFolder(File folderPath, Executor executor) throws IOException, URISyntaxException {
         CompletableFuture<Void> allTasks = CompletableFuture.completedFuture(null);
         allTasks = Files.walk(folderPath.toPath())
@@ -70,6 +95,11 @@ public class CollectionProcessor {
         return allTasks;
     }
 
+    /**
+     * Processes the contents of the specified file.
+     *
+     * @param path The path to the file to be processed.
+     */
     private void processFile(Path path) {
         try(var fileReader = new BufferedReader(new FileReader(path.toFile()))) {
             final var wordFrequencyMap = new ConcurrentHashMap<String, Integer>();

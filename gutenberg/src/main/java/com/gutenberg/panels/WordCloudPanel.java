@@ -118,7 +118,7 @@ public class WordCloudPanel extends JPanel {
 
     private void updateFiltersAndWordCloud() {
         // show the dialog
-        var dlg = new RederingDialog(this.parent);
+        var dlg = new RenderingDialog(this.parent);
         SwingUtilities.invokeLater(dlg::show);
         new Thread(() -> {
             try {
