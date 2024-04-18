@@ -18,7 +18,7 @@ This repository contains the WordCloudPanel Java class, which provides functiona
     - Words Starting With a User Input
     - Exlude list of words (Provided as comma delineated list by User ) 
     - Words Starting With 'pre'
-    - Word Limiter: Allows user to limit top (x) number of most frequent items to be passed to word cloud
+    - Word Limiter: Allows user to limit top (x) number of most frequent items to be passed to word cloud. Try setting to 1000 for optimally full clouds
 #
 Word Limit:
 
