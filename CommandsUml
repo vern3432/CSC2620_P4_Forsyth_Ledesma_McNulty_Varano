@@ -1,0 +1,6 @@
+sed -i 's/</\</g' target/gutenberg.urm.dot
+sed -i 's/>/\>/g' target/gutenberg.urm.dot
+sed -i 's/-\>/->/g' target/gutenberg.urm.dot
+
+dot -Tpng target/gutenberg.urm.dot -o target/gutenberg.urm.png
+

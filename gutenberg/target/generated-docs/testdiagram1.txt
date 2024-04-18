@@ -1,0 +1,149 @@
+@startuml
+
+class com.gutenberg.DataProcessor {
+	{field} {static} -THREAD_POOL_SIZE : int
+	{field} ~dataMap : java.util.Map
+	{field} +extractedAuthors : java.util.ArrayList
+	{method}  {static} +applyFilters ( paramString1 : String ) : java.util.Map
+	{method} +extractAuthors ( paramString1 : String ) : java.util.ArrayList
+	{method}  {static} +main ( paramString;1 : [Ljava.lang.String; ) : void
+	{method} +readFromGutenbergData () : java.util.Map
+	{method} +readFromGutenbergData ( paramString1 : String ) : java.util.Map
+}
+
+
+class com.gutenberg.DataProcessor$FileProcessorTask {
+	{field} -classLoader : ClassLoader
+	{field} -dataMap : java.util.Map
+	{field} -fileName : String
+	{field} -folderPath : String
+	{method} +run () : void
+}
+
+
+class com.gutenberg.DataProcessor$FileProcessorTask2 {
+	{field} -dataMap : java.util.Map
+	{field} -fileName : String
+	{field} -filePath : String
+	{method} +run () : void
+}
+
+
+class com.gutenberg.Main {
+	{method}  {static} -lambda$main$0 () : void
+	{method}  {static} +main ( paramString;1 : [Ljava.lang.String; ) : void
+}
+
+
+class com.gutenberg.TopWordFrequenciesReducer {
+	{field} {static} -DEFAULT_LIMIT : int
+	{field} {static} -MAX_THREADS : int
+	{method} +reduce ( paramList1 : java.util.List ) : java.util.List
+	{method} +reduce ( paramList1 : java.util.List , paramint2 : int ) : java.util.List
+}
+
+
+class com.gutenberg.TopWordFrequenciesReducer$MergeSortTask {
+	{field} -list : java.util.List
+	{field} {static} -serialVersionUID : long
+	{method} #compute () : java.util.List
+	{method} #compute () : Object
+	{method} -merge ( paramList1 : java.util.List , paramList2 : java.util.List ) : java.util.List
+}
+
+
+class com.gutenberg.WordCloudGui {
+	{field} ~tabbedPane : javax.swing.JTabbedPane
+	{method} ~createAndShowGUI () : void
+	{method} -createMenuBar () : javax.swing.JMenuBar
+	{method} -createNewWordCloudPanel ( paramString1 : String ) : void
+	{method}  {static} -lambda$createAndShowGUI$1 ( paramConcurrentMap1 : java.util.concurrent.ConcurrentMap , paramString2 : String , paramInteger3 : Integer ) : void
+	{method}  {static} -lambda$createAndShowGUI$2 ( paramMap$Entry1 : java.util.Map$Entry , paramConcurrentMap2 : java.util.concurrent.ConcurrentMap ) : Void
+	{method}  {static} -lambda$createAndShowGUI$3 ( paramConcurrentMap1 : java.util.concurrent.ConcurrentMap , paramMap$Entry2 : java.util.Map$Entry ) : java.util.concurrent.Callable
+	{method}  {static} -lambda$createAndShowGUI$4 ( paramMap$Entry1 : java.util.Map$Entry ) : com.kennycason.kumo.WordFrequency
+	{method} -lambda$createMenuBar$5 ( paramActionEvent1 : java.awt.event.ActionEvent ) : void
+	{method}  {static} -lambda$createNewWordCloudPanel$6 ( paramConcurrentMap1 : java.util.concurrent.ConcurrentMap , paramString2 : String , paramInteger3 : Integer ) : void
+	{method}  {static} -lambda$createNewWordCloudPanel$7 ( paramMap$Entry1 : java.util.Map$Entry , paramConcurrentMap2 : java.util.concurrent.ConcurrentMap ) : Void
+	{method}  {static} -lambda$createNewWordCloudPanel$8 ( paramConcurrentMap1 : java.util.concurrent.ConcurrentMap , paramMap$Entry2 : java.util.Map$Entry ) : java.util.concurrent.Callable
+	{method}  {static} -lambda$createNewWordCloudPanel$9 ( paramMap$Entry1 : java.util.Map$Entry ) : com.kennycason.kumo.WordFrequency
+	{method}  {static} -lambda$main$0 () : void
+	{method}  {static} +main ( paramString;1 : [Ljava.lang.String; ) : void
+	{method} +selectDirectory () : String
+}
+
+
+class com.gutenberg.WordCloudPanel {
+	{field} {static} -DEFAULT_HEIGHT : int
+	{field} {static} -DEFAULT_WIDTH : int
+	{field} {static} -SIDEBAR_WIDTH : int
+	{field} -authorFrequencyMap : java.util.Map
+	{field} ~authors : java.util.ArrayList
+	{field} -cbAughFilter : javax.swing.JCheckBox
+	{field} -cbAuthorFilter : javax.swing.JCheckBox
+	{field} -cbExcludeWordFilter : javax.swing.JCheckBox
+	{field} -cbIngFilter : javax.swing.JCheckBox
+	{field} -cbIsmFilter : javax.swing.JCheckBox
+	{field} -cbKnFilter : javax.swing.JCheckBox
+	{field} -cbOughFilter : javax.swing.JCheckBox
+	{field} -cbPreFilter : javax.swing.JCheckBox
+	{field} -cbStartsWithFilter : javax.swing.JCheckBox
+	{field} -excludeWordsList : java.util.List
+	{field} -filteredWordFrequencies : java.util.List
+	{field} -startsWithLetter : String
+	{field} -useAughFilter : boolean
+	{field} -useAuthorFilter : boolean
+	{field} -useExcludeWordFilter : boolean
+	{field} -useIngFilter : boolean
+	{field} -useIsmFilter : boolean
+	{field} -useKnFilter : boolean
+	{field} -useOughFilter : boolean
+	{field} -usePreFilter : boolean
+	{field} -useStartsWithFilter : boolean
+	{field} -wordCloud : com.kennycason.kumo.WordCloud
+	{field} -wordCloudCache : java.util.Map
+	{field} -wordCloudImage : java.awt.image.BufferedImage
+	{field} -wordFrequencies : java.util.List
+	{field} -wordLimit : int
+	{method} -addFilterActionListener ( paramJCheckBox1 : javax.swing.JCheckBox , paramRunnable2 : Runnable ) : void
+	{method} -applyFilters () : void
+	{method} -cacheDefaultWordCloud () : void
+	{method} -clearCacheAndRerender () : void
+	{method} -createSidePanel () : javax.swing.JPanel
+	{method} -disableOtherFilters () : void
+	{method} -drawSidebar ( paramGraphics2D1 : java.awt.Graphics2D ) : void
+	{method} -enableOtherFilters () : void
+	{method} -generateAuthorFrequencyMap ( paramArrayList1 : java.util.ArrayList ) : java.util.Map
+	{method} -generateFilterKey () : String
+	{method} +getPreferredSize () : java.awt.Dimension
+	{method} -isAuthorName ( paramString1 : String ) : boolean
+	{method} -lambda$addFilterActionListener$11 ( paramRunnable1 : Runnable , paramActionEvent2 : java.awt.event.ActionEvent ) : void
+	{method}  {static} -lambda$applyFilters$12 ( paramMap$Entry1 : java.util.Map$Entry ) : com.kennycason.kumo.WordFrequency
+	{method} -lambda$createSidePanel$0 () : void
+	{method} -lambda$createSidePanel$1 () : void
+	{method} -lambda$createSidePanel$10 ( paramJPanel1 : javax.swing.JPanel , paramJButton2 : javax.swing.JButton , paramActionEvent3 : java.awt.event.ActionEvent ) : void
+	{method} -lambda$createSidePanel$2 () : void
+	{method} -lambda$createSidePanel$3 () : void
+	{method} -lambda$createSidePanel$4 () : void
+	{method} -lambda$createSidePanel$5 () : void
+	{method} -lambda$createSidePanel$6 ( paramActionEvent1 : java.awt.event.ActionEvent ) : void
+	{method} -lambda$createSidePanel$7 ( paramJPanel1 : javax.swing.JPanel ) : void
+	{method} -lambda$createSidePanel$8 ( paramJPanel1 : javax.swing.JPanel ) : void
+	{method} -lambda$createSidePanel$9 () : void
+	{method}  {static} -lambda$setupWordCloud$13 ( paramJDialog1 : javax.swing.JDialog ) : void
+	{method}  {static} -lambda$setupWordCloud$14 ( paramJDialog1 : javax.swing.JDialog ) : void
+	{method} -lambda$setupWordCloud$15 () : void
+	{method} -lambda$setupWordCloud$16 ( paramJDialog1 : javax.swing.JDialog , paramExecutorService2 : java.util.concurrent.ExecutorService ) : void
+	{method} #paintComponent ( paramGraphics1 : java.awt.Graphics ) : void
+	{method} +reloadData ( paramString1 : String ) : void
+	{method} -setupInitialWordCloud () : void
+	{method} -setupWordCloud () : void
+	{method} -updateFiltersAndWordCloud () : void
+}
+
+
+
+
+com.gutenberg.WordCloudGui -->  com.gutenberg.DataProcessor : processor
+
+
+@enduml
