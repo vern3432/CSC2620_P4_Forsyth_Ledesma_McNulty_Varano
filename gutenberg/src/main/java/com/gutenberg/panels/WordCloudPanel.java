@@ -118,8 +118,8 @@ public class WordCloudPanel extends JPanel {
 
     private void updateFiltersAndWordCloud() {
         // show the dialog
-        var dlg = createProcessDialog();
-        SwingUtilities.invokeLater(() -> dlg.setVisible(true));
+        var dlg = new RederingDialog(this.parent);
+        SwingUtilities.invokeLater(dlg::show);
         new Thread(() -> {
             try {
                 applyFilters();
@@ -140,7 +140,7 @@ public class WordCloudPanel extends JPanel {
                 // Repaint the panel to reflect the updated word cloud
             } finally {
                 // Hide the dialog after processing is done
-                SwingUtilities.invokeLater(dlg::dispose);
+                SwingUtilities.invokeLater(dlg::hide);
                 SwingUtilities.invokeLater(this::repaint);
             }
         }).start();
@@ -318,17 +318,5 @@ public class WordCloudPanel extends JPanel {
         return result;
     }
 
-    private JDialog createProcessDialog() {
-        var result = new JDialog(parent, "Processing", true);
-        result.setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE); // Disable close button
-        result.setSize(200, 100);
-        result.setLocationRelativeTo(parent);
-        result.setUndecorated(true);
-
-        JLabel messageLabel = new JLabel("Rendering...");
-        messageLabel.setHorizontalAlignment(SwingConstants.CENTER); // Center align the message
-        result.add(messageLabel, BorderLayout.CENTER); // Add label to the center
-        return result;
-    }
 }
 

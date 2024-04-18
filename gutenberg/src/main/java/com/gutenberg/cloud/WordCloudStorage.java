@@ -74,4 +74,11 @@ public class WordCloudStorage {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * Initialize the authors and words frequency maps.
+     */
+    public void init() {
+        this.wordFrequencyMap.clear();
+        this.authorsFrequencyMap.clear();
+    }
 }

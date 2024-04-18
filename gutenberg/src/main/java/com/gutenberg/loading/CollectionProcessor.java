@@ -34,6 +34,11 @@ public class CollectionProcessor {
     }
 
     public void process(File folderPath) {
+
+        fileCount.set(0);
+        wordCloudStorage.init();
+        statusPanel.setStatus("Scanning files (" + fileCount + ") ...");
+
         Thread backgroundThread = new Thread(() -> {
             statusPanel.startAnimation();
             ExecutorService executor = Executors.newFixedThreadPool(5);
