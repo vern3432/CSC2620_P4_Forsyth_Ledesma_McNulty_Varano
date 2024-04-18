@@ -106,7 +106,7 @@ public class WordCloudGui {
         JMenuItem newMenuItem = new JMenuItem("Open New Directory");
 
         // Set accelerator key for new directory (Ctrl + o)
-        int shortcutKey = InputEvent.CTRL_DOWN_MASK; // Ctrl key fo shortcut
+        int shortcutKey = InputEvent.CTRL_DOWN_MASK; // Ctrl key for shortcut
         newMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, shortcutKey));
         
         newMenuItem.addActionListener(e -> {
