@@ -4,6 +4,7 @@ import com.kennycason.kumo.WordFrequency;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentMap;
 import java.util.stream.Collectors;
@@ -58,6 +59,7 @@ public class WordCloudStorage {
      */
     public List<WordFrequency> getWords() {
         return wordFrequencyMap.entrySet().parallelStream()
+                .filter(Objects::nonNull)
                 .map(entry -> new WordFrequency(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
     }
@@ -70,6 +72,7 @@ public class WordCloudStorage {
      */
     public List<WordFrequency> getAuthors() {
         return authorsFrequencyMap.entrySet().parallelStream()
+                .filter(Objects::nonNull)
                 .map(entry -> new WordFrequency(entry.getKey(), entry.getValue()))
                 .collect(Collectors.toList());
     }

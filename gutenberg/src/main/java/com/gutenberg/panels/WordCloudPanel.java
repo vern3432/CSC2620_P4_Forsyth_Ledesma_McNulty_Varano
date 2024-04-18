@@ -4,6 +4,7 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.regex.Pattern;
 
 import javax.swing.*;
@@ -187,7 +188,7 @@ public class WordCloudPanel extends JPanel {
             }
         }
         // Apply the selected filters to the word frequencies list
-        words.parallelStream().forEach(wordFrequency -> {
+        words.parallelStream().filter(Objects::nonNull).forEach(wordFrequency -> {
             var word = wordFrequency.getWord();
             if (cbExcludeWordFilter.isSelected() && excludeWordsList.contains(word)) {
                 // Nothing to do
@@ -227,7 +228,7 @@ public class WordCloudPanel extends JPanel {
         wordCloud.setPadding(2);
         wordCloud.setBackground(new CircleBackground(300));
         wordCloud.setColorPalette(new LinearGradientColorPalette(Color.RED, Color.BLUE, Color.GREEN, 30, 30));
-        wordCloud.setFontScalar(new SqrtFontScalar(10, 40));
+//        wordCloud.setFontScalar(new SqrtFontScalar(10, 40));
 
         // Build the word cloud using the filtered word frequencies
         wordCloud.build(this.filteredWordFrequencies);
