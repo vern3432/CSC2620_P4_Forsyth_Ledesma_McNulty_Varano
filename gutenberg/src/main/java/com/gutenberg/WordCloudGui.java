@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.*;
 import java.util.stream.Collectors;
+import java.awt.event.InputEvent;
+import java.awt.event.KeyEvent;
 
 import com.kennycason.kumo.WordFrequency;
 
@@ -101,6 +103,9 @@ public class WordCloudGui {
         // Create a "File" menu with a "New" menu item
         JMenu fileMenu = new JMenu("File");
         JMenuItem newMenuItem = new JMenuItem("Open New Directory");
+        int shortcutKey = InputEvent.CTRL_DOWN_MASK; // Ctrl key for shortcut
+        newMenuItem.setAccelerator(KeyStroke.getKeyStroke(KeyEvent.VK_O, shortcutKey));
+
         newMenuItem.addActionListener(e -> {
             // Handle "New" menu item click
             // Select a directory using JFileChooser
