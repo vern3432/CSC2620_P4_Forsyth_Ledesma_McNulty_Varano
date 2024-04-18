@@ -22,7 +22,7 @@ public class WordCloudPanel extends JPanel {
     private WordCloud wordCloud;
     private BufferedImage wordCloudImage;
     private WordCloudStorage wordCloudStorage;
-    private List<WordFrequency> filteredWordFrequencies;
+    private List<WordFrequency> filteredWordFrequencies = new ArrayList<>();
     private final JFrame parent;
 
     private static final int DEFAULT_WIDTH = 600;
@@ -52,7 +52,6 @@ public class WordCloudPanel extends JPanel {
     public WordCloudPanel(WordCloudStorage wordCloudStorage, JFrame parent) {
         this.parent = parent;
         this.wordCloudStorage = wordCloudStorage;
-        this.filteredWordFrequencies = new ArrayList<>();
 
         setLayout(new BorderLayout());
 
@@ -211,6 +210,9 @@ public class WordCloudPanel extends JPanel {
             }
         });
 
+        if (filteredWordFrequencies == null) {
+            filteredWordFrequencies = new ArrayList<>(); // Make sure it's not null
+        }
     }
 
     private boolean isAuthorName(String word) {

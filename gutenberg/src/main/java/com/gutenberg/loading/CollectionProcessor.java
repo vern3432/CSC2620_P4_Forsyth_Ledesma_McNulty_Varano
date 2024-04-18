@@ -56,7 +56,7 @@ public class CollectionProcessor {
 
         Thread backgroundThread = new Thread(() -> {
             statusPanel.startAnimation();
-            ExecutorService executor = Executors.newFixedThreadPool(5);
+            ExecutorService executor = Executors.newFixedThreadPool(10);
             try {
                 CompletableFuture<Void> allTasks = processFolder(folderPath, executor);
                 // Wait for all tasks to complete
