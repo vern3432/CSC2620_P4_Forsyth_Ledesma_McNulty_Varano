@@ -19,13 +19,18 @@ import java.util.regex.Pattern;
 
 import javax.xml.crypto.Data;
 
+/**
+ *  DataProcessor class provides methods for processing data from Gutenberg dataset
+ */
 public class DataProcessor {
 
     Map<String, String> dataMap;
     private static final int THREAD_POOL_SIZE = 5; // Number of threads in the thread pool
     ArrayList<String> extractedAuthors = new ArrayList<>();
 
-    // Constructor
+     /**
+     * constructs new DataProcessor object
+     */
     public DataProcessor() {
         // Initialization code if necessary
     }

@@ -8,7 +8,9 @@ public class Book {
     private String title;
     
     /** 
-     * @return int
+     * gets page number
+     * 
+     * @return page number
      */
     public int getPageNumber() {
         return pageNumber;
@@ -26,7 +28,14 @@ public class Book {
     private String releaseDate;
     private String language;
 
-    // Constructor
+    /**
+     *  constructs a new book object with the specified attributes
+     * 
+     * @param title        title of book
+     * @param author       author of book
+     * @param releaseDate  release date of book
+     * @param language     language of book
+     */
     public Book(String title, String author, String releaseDate, String language) {
         this.title = title;
         this.author = author;
