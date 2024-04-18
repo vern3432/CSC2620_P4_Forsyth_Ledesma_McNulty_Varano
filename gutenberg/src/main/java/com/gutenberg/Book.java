@@ -1,5 +1,8 @@
 package com.gutenberg;
 
+/**
+ * 
+ */
 public class Book {
     private int pageNumber;
     private String title;
@@ -33,16 +36,19 @@ public class Book {
 
     
     /** 
-     * @return String
+     * Gets title of book
+     * 
+     * @return title of book
      */
-    // Getters
     public String getTitle() {
         return title;
     }
 
     
     /** 
-     * @return String
+     * Gets author of given book
+     * 
+     * @return Author of book
      */
     public String getAuthor() {
         return author;
@@ -50,12 +56,20 @@ public class Book {
 
     
     /** 
-     * @return String
+     * Gets release date of book
+     * 
+     * @return release date of book
      */
     public String getReleaseDate() {
         return releaseDate;
     }
 
+    /**
+     * Gets language of given book
+     * 
+     * @return language written in book
+     */
+    
     public String getLanguage() {
         return language;
     }
@@ -77,8 +91,12 @@ public class Book {
         this.language = language;
     }
 
-    // Optional: Override toString() for easy printing of the book details
     @Override
+    /**
+     * Turns book and its info into stiring form
+     * 
+     * @return string describing books attributes
+     */
     public String toString() {
         return "Book{" +
                 "title='" + title + '\'' +
