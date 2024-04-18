@@ -31,7 +31,7 @@ public class WordCloudPanel extends JPanel {
 
   private static final int DEFAULT_WIDTH = 600;
   private static final int DEFAULT_HEIGHT = 400;
-  private static final int SIDEBAR_WIDTH = 200;
+  private static final int SIDEBAR_WIDTH = 300;
 
   // Checkboxes for filtering options
   private JCheckBox cbIngFilter;
@@ -312,6 +312,22 @@ private void enableOtherFilters() {
   cbStartsWithFilter.setEnabled(true);
   cbExcludeWordFilter.setEnabled(true);
   cbPreFilter.setEnabled(true);
+
+
+
+  useIngFilter = false;
+  useOughFilter = false;
+  useIsmFilter = false;
+  useKnFilter = false;
+  useAughFilter = false;
+  useAuthorFilter = false;
+ //New
+  useStartsWithFilter = false;
+  useExcludeWordFilter = false;
+  usePreFilter = false;
+
+
+
   // You can add more checkboxes here as needed
 }
 
