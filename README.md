@@ -41,3 +41,7 @@ This repository contains the WordCloudPanel Java class, which provides functiona
 5. The WordCloudPanel class provides a GUI with a sidebar for filter options. Use the checkboxes to apply the desired filters to the word cloud.
 
 5. The WordCloudPanel class provides a graphical user interface with a sidebar for filter options. Use the checkboxes to apply the desired filters to the word cloud.
+
+## Requested Phrase
+
+- Where Should I put "The File"?
