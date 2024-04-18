@@ -13,6 +13,13 @@ This repository contains the WordCloudPanel Java class, which provides functiona
     - Words starting with 'kn'
     - Words containing 'augh'
     - Author names
+    - Words Starting With a User Input
+    - Exlude list of words (Provided as comma delineated list by User ) 
+    - Words Starting With 'pre'
+    - Word Limiter: Allows user to limit top (x) number of most frequent items to be passed to word cloud
+#
+Word Limit:
+
 - Caches filtered and rendered word cloud images for faster rendering.
 - Offers an option to change the limit of top word frequencies used in the word cloud.
 - Uses the KennyCason's Kumo library for word cloud generation.
