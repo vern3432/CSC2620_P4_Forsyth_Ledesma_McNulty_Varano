@@ -4,6 +4,7 @@
 This repository contains the WordCloudPanel Java class, which provides functionality for generating word clouds based on word frequencies. It offers a graphical user interface (GUI) with filter options to customize the word cloud display.
 
 ## Features
+- Small Sample is initially loaded, Use File Menu "Open New Directory" to open new directory, which will proccess and open new word cloud from data
 
 - Generates a word cloud based on a list of word frequencies.
 - Provides filter options to customize the words displayed in the word cloud:
