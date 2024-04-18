@@ -4,3 +4,6 @@ sed -i 's/-\>/->/g' target/gutenberg.urm.dot
 
 dot -Tpng target/gutenberg.urm.dot -o target/gutenberg.urm.png
 
+
+
+com.gutenberg.DataProcessor -.->   class com.gutenberg.DataProcessor$FileProcessorTask2: Dependency
