@@ -58,14 +58,6 @@ class com.gutenberg.WordCloudGui {
 	{method} -createMenuBar () : javax.swing.JMenuBar
 	{method} -createNewWordCloudPanel ( paramString1 : String ) : void
 	{method}  {static} -lambda$createAndShowGUI$1 ( paramConcurrentMap1 : java.util.concurrent.ConcurrentMap , paramString2 : String , paramInteger3 : Integer ) : void
-	{method}  {static} -lambda$createAndShowGUI$2 ( paramMap$Entry1 : java.util.Map$Entry , paramConcurrentMap2 : java.util.concurrent.ConcurrentMap ) : Void
-	{method}  {static} -lambda$createAndShowGUI$3 ( paramConcurrentMap1 : java.util.concurrent.ConcurrentMap , paramMap$Entry2 : java.util.Map$Entry ) : java.util.concurrent.Callable
-	{method}  {static} -lambda$createAndShowGUI$4 ( paramMap$Entry1 : java.util.Map$Entry ) : com.kennycason.kumo.WordFrequency
-	{method} -lambda$createMenuBar$5 ( paramActionEvent1 : java.awt.event.ActionEvent ) : void
-	{method}  {static} -lambda$createNewWordCloudPanel$6 ( paramConcurrentMap1 : java.util.concurrent.ConcurrentMap , paramString2 : String , paramInteger3 : Integer ) : void
-	{method}  {static} -lambda$createNewWordCloudPanel$7 ( paramMap$Entry1 : java.util.Map$Entry , paramConcurrentMap2 : java.util.concurrent.ConcurrentMap ) : Void
-	{method}  {static} -lambda$createNewWordCloudPanel$8 ( paramConcurrentMap1 : java.util.concurrent.ConcurrentMap , paramMap$Entry2 : java.util.Map$Entry ) : java.util.concurrent.Callable
-	{method}  {static} -lambda$createNewWordCloudPanel$9 ( paramMap$Entry1 : java.util.Map$Entry ) : com.kennycason.kumo.WordFrequency
 	{method}  {static} -lambda$main$0 () : void
 	{method}  {static} +main ( paramString;1 : [Ljava.lang.String; ) : void
 	{method} +selectDirectory () : String
@@ -120,15 +112,6 @@ class com.gutenberg.WordCloudPanel {
 	{method}  {static} -lambda$applyFilters$12 ( paramMap$Entry1 : java.util.Map$Entry ) : com.kennycason.kumo.WordFrequency
 	{method} -lambda$createSidePanel$0 () : void
 	{method} -lambda$createSidePanel$1 () : void
-	{method} -lambda$createSidePanel$10 ( paramJPanel1 : javax.swing.JPanel , paramJButton2 : javax.swing.JButton , paramActionEvent3 : java.awt.event.ActionEvent ) : void
-	{method} -lambda$createSidePanel$2 () : void
-	{method} -lambda$createSidePanel$3 () : void
-	{method} -lambda$createSidePanel$4 () : void
-	{method} -lambda$createSidePanel$5 () : void
-	{method} -lambda$createSidePanel$6 ( paramActionEvent1 : java.awt.event.ActionEvent ) : void
-	{method} -lambda$createSidePanel$7 ( paramJPanel1 : javax.swing.JPanel ) : void
-	{method} -lambda$createSidePanel$8 ( paramJPanel1 : javax.swing.JPanel ) : void
-	{method} -lambda$createSidePanel$9 () : void
 	{method}  {static} -lambda$setupWordCloud$13 ( paramJDialog1 : javax.swing.JDialog ) : void
 	{method}  {static} -lambda$setupWordCloud$14 ( paramJDialog1 : javax.swing.JDialog ) : void
 	{method} -lambda$setupWordCloud$15 () : void
